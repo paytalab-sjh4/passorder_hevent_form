@@ -1161,6 +1161,7 @@
     </div>
 
     <script>
+        
   // ===== PassOrder → Google Apps Script Web App =====
   const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyf576nDzBRHXgQJXdsdW3tZaqe7uoC2MrTKcaHEnVWBR_0e0S0RM8rxyhit7_7RsQ7/exec";
 
@@ -1168,7 +1169,7 @@
     try {
       await fetch(GOOGLE_SCRIPT_URL, {
         method: "POST",
-        mode: "no-cors", // send only; response is opaque (fine for appending to Sheet)
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(payload)
       });
@@ -1970,33 +1971,19 @@ let currentStep = 1;
         }
 
         // Submit functions
+
+        // Submit functions (replaced)
         async function submitMenuEvent() {
-                    // 약관 동의 최종 확인
-        if (!validateStep('11_confirm')) { return; }
-
-        // 최신 데이터 저장 (마지막 단계 기준)
-        saveStepData(11);
-
-        const payload = {
-          confirmReading: document.getElementById('confirmReading')?.checked || false,
-          ...formData
-        };
-
-        const ok = await postToSheet(payload);
-
-        // 성공 화면으로 이동
-        document.getElementById('step11_confirm').classList.remove('active');
-        document.getElementById('successStep').classList.add('active');
-        document.getElementById('progressBar').style.width = '100%';
-        scrollToTop();
-    
-            }
-            
-            // 서버로 데이터 전송 (현재는 콘솔 출력)
-            console.log('Menu Event Data:', formData);
-            showToast('신청서가 제출되었습니다!');
-            
-            // 성공 화면으로 이동
+            // 약관 동의 최종 확인
+            if (!validateStep('11_confirm')) { return; }
+            // 최신 데이터 저장
+            saveStepData(11);
+            const payload = {
+              confirmReading: document.getElementById('confirmReading')?.checked || false,
+              ...formData
+            };
+            await postToSheet(payload);
+            // 성공 화면 이동
             document.getElementById('step11_confirm').classList.remove('active');
             document.getElementById('successStep').classList.add('active');
             document.getElementById('progressBar').style.width = '100%';
@@ -2004,37 +1991,27 @@ let currentStep = 1;
         }
 
         async function submitCouponEvent() {
-                    // 약관 동의 최종 확인
-        if (!validateStep('16_confirm')) { return; }
-
-        // 최신 데이터 저장 (마지막 단계 기준)
-        saveStepData(16);
-
-        const payload = {
-          confirmReading: document.getElementById('confirmReading')?.checked || false,
-          ...formData
-        };
-
-        const ok = await postToSheet(payload);
-
-        // 성공 화면으로 이동
-        document.getElementById('step16_confirm').classList.remove('active');
-        document.getElementById('successStep').classList.add('active');
-        document.getElementById('progressBar').style.width = '100%';
-        scrollToTop();
-    
-            }
-            
-            // 서버로 데이터 전송 (현재는 콘솔 출력)
-            console.log('Coupon Event Data:', formData);
-            showToast('신청서가 제출되었습니다!');
-            
-            // 성공 화면으로 이동
+            // 약관 동의 최종 확인
+            if (!validateStep('16_confirm')) { return; }
+            // 최신 데이터 저장
+            saveStepData(16);
+            const payload = {
+              confirmReading: document.getElementById('confirmReading')?.checked || false,
+              ...formData
+            };
+            await postToSheet(payload);
+            // 성공 화면 이동
             document.getElementById('step16_confirm').classList.remove('active');
             document.getElementById('successStep').classList.add('active');
             document.getElementById('progressBar').style.width = '100%';
             scrollToTop();
         }
+
+        // removed submitMenuEvent
+
+
+        // removed submitCouponEvent
+
         function saveStepData(step) {
             switch(step) {
                 case 2:
@@ -2130,89 +2107,11 @@ let currentStep = 1;
         }
 
         // Submit functions
-        function submitMenuEvent() {
-            if (!validateStep(11)) {
-                return;
-            }
-            
-            saveStepData(11);
-            
-            // Generate summary
-            let summaryHTML = `
-                <div class="summary-item">
-                    <span class="summary-label">매장명</span>
-                    <span class="summary-value">${formData.storeName}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">이벤트 메뉴</span>
-                    <span class="summary-value">${formData.menus.join(', ')}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">할인 방식</span>
-                    <span class="summary-value">${formData.discountType === 'amount' ? `${formData.discountAmount}원 할인` : `${formData.discountRate}% 할인`}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">이벤트 시간</span>
-                    <span class="summary-value">${formData.allDayTime ? '영업시간 전체' : `${formData.startTime} ~ ${formData.endTime}`}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">이벤트 기간</span>
-                    <span class="summary-value">${formData.alwaysEvent ? '상시 진행' : `${formData.eventStartDate} ~ ${formData.eventEndDate}`}</span>
-                </div>
-            `;
-            
-            document.getElementById('menuEventSummary').innerHTML = summaryHTML;
-            
-            // Submit to server (mock)
-            console.log('Menu Event Data:', formData);
-            
-            // Show success
-            document.getElementById(`step${currentStep}`).classList.remove('active');
-            document.getElementById('successStep').classList.add('active');
-            document.getElementById('progressBar').style.width = '100%';
-        }
+        // removed submitMenuEvent
 
-        function submitCouponEvent() {
-            if (!validateStep(16)) {
-                return;
-            }
-            
-            saveStepData(16);
-            
-            // Generate summary
-            let summaryHTML = `
-                <div class="summary-item">
-                    <span class="summary-label">매장명</span>
-                    <span class="summary-value">${formData.storeName}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">쿠폰 개수</span>
-                    <span class="summary-value">${formData.coupons.length}개</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">쿠폰 금액</span>
-                    <span class="summary-value">${formData.coupons.map(c => c.amount + '원').join(', ')}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">이벤트 기간</span>
-                    <span class="summary-value">${formData.alwaysCouponEvent ? '상시' : `${formData.couponStartDate} ~ ${formData.couponEndDate}`}</span>
-                </div>
-                <div class="summary-item">
-                    <span class="summary-label">쿠폰 유효기간</span>
-                    <span class="summary-value">${formData.couponValidity}일</span>
-                </div>
-            `;
-            
-            document.getElementById('couponEventSummary').innerHTML = summaryHTML;
-            
-            // Submit to server (mock)
-            console.log('Coupon Event Data:', formData);
-            
-            // Show success
-            document.getElementById(`step${currentStep}`).classList.remove('active');
-            document.getElementById('successStep').classList.add('active');
-            document.getElementById('progressBar').style.width = '100%';
-        }
+
+        // removed submitCouponEvent
+
 
         // Reset form
         function resetForm() {
