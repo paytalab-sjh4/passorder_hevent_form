@@ -776,16 +776,30 @@
                 <div id="timeSelectionArea">
                     <div class="form-group">
                         <label>이벤트 시작 시간</label>
-                        <select id="startTime">
-                            <option value="">시작 시간 선택</option>
-                        </select>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="startPeriod" style="flex: 1;" onchange="updateStartTimeOptions()">
+                                <option value="">오전/오후 선택</option>
+                                <option value="am">오전</option>
+                                <option value="pm">오후</option>
+                            </select>
+                            <select id="startTime" style="flex: 2;" disabled>
+                                <option value="">먼저 오전/오후를 선택해주세요</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="form-group">
                         <label>이벤트 종료 시간</label>
-                        <select id="endTime" disabled>
-                            <option value="">먼저 시작 시간을 선택해주세요</option>
-                        </select>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="endPeriod" style="flex: 1;" onchange="updateEndTimeOptions()" disabled>
+                                <option value="">오전/오후 선택</option>
+                                <option value="am">오전</option>
+                                <option value="pm">오후</option>
+                            </select>
+                            <select id="endTime" style="flex: 2;" disabled>
+                                <option value="">먼저 시작 시간을 선택해주세요</option>
+                            </select>
+                        </div>
                     </div>
 
                     <div class="time-result" id="timeResult"></div>
@@ -1221,64 +1235,127 @@ let currentStep = 1;
 
         // Initialize time options
         function initializeTimeOptions() {
-            const startSelect = document.getElementById('startTime');
-            const times = [];
-            
-            for (let hour = 5; hour <= 23; hour++) {
-                for (let minute of [0, 30]) {
-                    const h = hour.toString().padStart(2, '0');
-                    const m = minute.toString().padStart(2, '0');
-                    const period = hour < 12 ? '오전' : '오후';
-                    const displayHour = hour <= 12 ? hour : hour - 12;
-                    times.push({
-                        value: `${h}:${m}`,
-                        label: `${period} ${displayHour}:${m}`
-                    });
-                }
-            }
-            
-            times.forEach(time => {
-                const option = document.createElement('option');
-                option.value = time.value;
-                option.textContent = time.label;
-                startSelect.appendChild(option);
-            });
-
-            startSelect.addEventListener('change', updateEndTimeOptions);
+            // 새로운 시간 선택 방식 - 오전/오후 먼저 선택
+            // 초기화는 이벤트 리스너만 설정
         }
 
-        // Update end time options based on start time
-        function updateEndTimeOptions() {
-            const startTime = document.getElementById('startTime').value;
-            const endSelect = document.getElementById('endTime');
+        // Update start time options based on period selection
+        function updateStartTimeOptions() {
+            const period = document.getElementById('startPeriod').value;
+            const startTimeSelect = document.getElementById('startTime');
             
-            if (!startTime) {
-                endSelect.disabled = true;
-                endSelect.innerHTML = '<option value="">먼저 시작 시간을 선택해주세요</option>';
+            if (!period) {
+                startTimeSelect.disabled = true;
+                startTimeSelect.innerHTML = '<option value="">먼저 오전/오후를 선택해주세요</option>';
                 return;
             }
             
-            endSelect.disabled = false;
-            endSelect.innerHTML = '<option value="">종료 시간 선택</option>';
+            startTimeSelect.disabled = false;
+            startTimeSelect.innerHTML = '<option value="">시간 선택</option>';
+            
+            let hours = [];
+            if (period === 'am') {
+                // 오전 5시부터 11시 30분까지
+                for (let hour = 5; hour <= 11; hour++) {
+                    hours.push(hour);
+                }
+            } else {
+                // 오후 12시부터 11시 30분까지 (12시~23시)
+                for (let hour = 12; hour <= 23; hour++) {
+                    hours.push(hour);
+                }
+            }
+            
+            hours.forEach(hour => {
+                for (let minute of [0, 30]) {
+                    const h = hour.toString().padStart(2, '0');
+                    const m = minute.toString().padStart(2, '0');
+                    const displayHour = hour <= 12 ? hour : hour - 12;
+                    const displayPeriod = hour < 12 ? '오전' : '오후';
+                    
+                    const option = document.createElement('option');
+                    option.value = `${h}:${m}`;
+                    option.textContent = `${displayHour === 0 ? 12 : displayHour}시 ${m === '00' ? '' : '30분'}`;
+                    startTimeSelect.appendChild(option);
+                }
+            });
+            
+            startTimeSelect.addEventListener('change', function() {
+                // 시작 시간이 선택되면 종료 시간 오전/오후 활성화
+                const endPeriod = document.getElementById('endPeriod');
+                if (this.value) {
+                    endPeriod.disabled = false;
+                    // 종료 시간 초기화
+                    endPeriod.value = '';
+                    document.getElementById('endTime').disabled = true;
+                    document.getElementById('endTime').innerHTML = '<option value="">먼저 오전/오후를 선택해주세요</option>';
+                } else {
+                    endPeriod.disabled = true;
+                    endPeriod.value = '';
+                    document.getElementById('endTime').disabled = true;
+                    document.getElementById('endTime').innerHTML = '<option value="">먼저 시작 시간을 선택해주세요</option>';
+                }
+                calculateTimeRange();
+            });
+        }
+
+        // Update end time options based on start time and period
+        function updateEndTimeOptions() {
+            const startTime = document.getElementById('startTime').value;
+            const endPeriod = document.getElementById('endPeriod').value;
+            const endTimeSelect = document.getElementById('endTime');
+            
+            if (!startTime || !endPeriod) {
+                endTimeSelect.disabled = true;
+                endTimeSelect.innerHTML = '<option value="">먼저 오전/오후를 선택해주세요</option>';
+                return;
+            }
+            
+            endTimeSelect.disabled = false;
+            endTimeSelect.innerHTML = '<option value="">시간 선택</option>';
             
             const [startHour, startMinute] = startTime.split(':').map(Number);
             const startTotalMinutes = startHour * 60 + startMinute;
             
-            for (let totalMinutes = startTotalMinutes + 30; totalMinutes <= 23 * 60 + 30; totalMinutes += 30) {
-                const hour = Math.floor(totalMinutes / 60);
-                const minute = totalMinutes % 60;
-                const h = hour.toString().padStart(2, '0');
-                const m = minute.toString().padStart(2, '0');
-                const period = hour < 12 ? '오전' : '오후';
-                const displayHour = hour <= 12 ? hour : hour - 12;
-                
-                const option = document.createElement('option');
-                option.value = `${h}:${m}`;
-                option.textContent = `${period} ${displayHour}:${m}`;
-                endSelect.appendChild(option);
+            let hours = [];
+            if (endPeriod === 'am') {
+                for (let hour = 5; hour <= 11; hour++) {
+                    hours.push(hour);
+                }
+            } else {
+                for (let hour = 12; hour <= 23; hour++) {
+                    hours.push(hour);
+                }
             }
-
-            endSelect.addEventListener('change', calculateTimeRange);
+            
+            hours.forEach(hour => {
+                for (let minute of [0, 30]) {
+                    const totalMinutes = hour * 60 + minute;
+                    // 종료 시간은 시작 시간보다 최소 30분 이후여야 함
+                    if (totalMinutes > startTotalMinutes) {
+                        const h = hour.toString().padStart(2, '0');
+                        const m = minute.toString().padStart(2, '0');
+                        const displayHour = hour <= 12 ? hour : hour - 12;
+                        
+                        const option = document.createElement('option');
+                        option.value = `${h}:${m}`;
+                        option.textContent = `${displayHour === 0 ? 12 : displayHour}시 ${m === '00' ? '' : '30분'}`;
+                        endTimeSelect.appendChild(option);
+                    }
+                }
+            });
+            
+            // 만약 선택 가능한 옵션이 없다면 (시작 시간이 너무 늦은 경우)
+            if (endTimeSelect.options.length === 1) {
+                endTimeSelect.innerHTML = '<option value="">선택 가능한 종료 시간이 없습니다</option>';
+                // 다른 오전/오후를 선택하도록 안내
+                const startPeriod = document.getElementById('startPeriod').value;
+                if (startPeriod === 'pm' && endPeriod === 'am') {
+                    endTimeSelect.innerHTML = '<option value="">오후를 선택해주세요</option>';
+                }
+            }
+            
+            endTimeSelect.addEventListener('change', calculateTimeRange);
         }
 
         // Calculate and display time range
@@ -1302,6 +1379,16 @@ let currentStep = 1;
                 if (minutes > 0) {
                     result += ` ${minutes}분`;
                 }
+                
+                // 시작 시간과 종료 시간 표시
+                const formatTime = (time) => {
+                    const [hour, minute] = time.split(':').map(Number);
+                    const period = hour < 12 ? '오전' : '오후';
+                    const displayHour = hour <= 12 ? hour : hour - 12;
+                    return `${period} ${displayHour === 0 ? 12 : displayHour}시${minute === 0 ? '' : ' 30분'}`;
+                };
+                
+                result += ` (${formatTime(startTime)} ~ ${formatTime(endTime)})`;
                 
                 resultDiv.textContent = result;
                 resultDiv.classList.add('show');
@@ -1365,6 +1452,22 @@ let currentStep = 1;
             const checkbox = document.getElementById('allDayTime');
             const timeArea = document.getElementById('timeSelectionArea');
             timeArea.style.display = checkbox.checked ? 'none' : 'block';
+            
+            // 체크박스 해제 시 시간 선택 초기화
+            if (!checkbox.checked) {
+                document.getElementById('startPeriod').value = '';
+                document.getElementById('startTime').value = '';
+                document.getElementById('startTime').disabled = true;
+                document.getElementById('startTime').innerHTML = '<option value="">먼저 오전/오후를 선택해주세요</option>';
+                
+                document.getElementById('endPeriod').value = '';
+                document.getElementById('endPeriod').disabled = true;
+                document.getElementById('endTime').value = '';
+                document.getElementById('endTime').disabled = true;
+                document.getElementById('endTime').innerHTML = '<option value="">먼저 시작 시간을 선택해주세요</option>';
+                
+                document.getElementById('timeResult').classList.remove('show');
+            }
         }
 
         function toggleDateSelection() {
@@ -1846,6 +1949,18 @@ let currentStep = 1;
                 'once': '고객 당 1번 사용'
             };
             
+            // 시간 표시 형식 개선
+            let timeDisplay = '영업시간 전체';
+            if (!formData.allDayTime && formData.startTime && formData.endTime) {
+                const formatTime = (time) => {
+                    const [hour, minute] = time.split(':').map(Number);
+                    const period = hour < 12 ? '오전' : '오후';
+                    const displayHour = hour <= 12 ? hour : hour - 12;
+                    return `${period} ${displayHour === 0 ? 12 : displayHour}시${minute === 0 ? '' : ' 30분'}`;
+                };
+                timeDisplay = `${formatTime(formData.startTime)} ~ ${formatTime(formData.endTime)}`;
+            }
+            
             let summaryHTML = `
                 <div class="confirmation-item">
                     <div class="confirmation-label">매장 정보</div>
@@ -1861,7 +1976,7 @@ let currentStep = 1;
                 </div>
                 <div class="confirmation-item">
                     <div class="confirmation-label">이벤트 시간</div>
-                    <div class="confirmation-value">${formData.allDayTime ? '영업시간 전체' : `${formData.startTime} ~ ${formData.endTime}`}</div>
+                    <div class="confirmation-value">${timeDisplay}</div>
                 </div>
                 <div class="confirmation-item">
                     <div class="confirmation-label">이벤트 기간</div>
@@ -2043,8 +2158,16 @@ let currentStep = 1;
                 case 8:
                     formData.allDayTime = document.getElementById('allDayTime').checked;
                     if (!formData.allDayTime) {
-                        formData.startTime = document.getElementById('startTime').value;
-                        formData.endTime = document.getElementById('endTime').value;
+                        const startTime = document.getElementById('startTime').value;
+                        const endTime = document.getElementById('endTime').value;
+                        if (startTime && endTime) {
+                            formData.startTime = startTime;
+                            formData.endTime = endTime;
+                            
+                            // 오전/오후 정보도 저장 (선택사항)
+                            formData.startPeriod = document.getElementById('startPeriod').value;
+                            formData.endPeriod = document.getElementById('endPeriod').value;
+                        }
                     }
                     break;
                 case 9:
