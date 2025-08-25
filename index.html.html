@@ -1,0 +1,2339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사장님이벤트 신청서</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #A67C52 0%, #8B5A3C 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: white;
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .step-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .step-description {
+            font-size: 14px;
+            color: #8c8c8c;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #444;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #B8935F;
+            box-shadow: 0 0 0 3px rgba(184, 147, 95, 0.1);
+        }
+
+        input:disabled, select:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .radio-group, .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-item, .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-item:hover, .checkbox-item:hover {
+            border-color: #B8935F;
+            background: #FFF8F0;
+        }
+
+        .radio-item input, .checkbox-item input {
+            width: auto;
+            margin-right: 12px;
+        }
+
+        .radio-item.selected, .checkbox-item.selected {
+            border-color: #B8935F;
+            background: #FFF8F0;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #B8935F 0%, #9B7B4F 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(155, 123, 79, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-add {
+            background: #0AC4B1;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 10px;
+        }
+
+        .btn-add:hover {
+            background: #09b5a5;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.3s ease;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .event-highlight {
+            font-weight: bold;
+            color: #0AC4B1;
+        }
+
+        .menu-item, .coupon-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .time-result, .date-result {
+            padding: 10px;
+            background: #f0f7ff;
+            border-radius: 6px;
+            margin-top: 10px;
+            color: #0066cc;
+            font-weight: 500;
+            display: none;
+        }
+
+        .time-result.show, .date-result.show {
+            display: block;
+        }
+
+        .summary {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .summary h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .summary-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 0;
+                box-shadow: none;
+            }
+
+            body {
+                padding: 0;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+        }
+
+        .success-animation {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #B8935F 0%, #9B7B4F 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .checkmark svg {
+            width: 40px;
+            height: 40px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+            animation: draw 0.5s ease 0.3s forwards;
+        }
+
+        @keyframes draw {
+            from { stroke-dasharray: 100; stroke-dashoffset: 100; }
+            to { stroke-dasharray: 100; stroke-dashoffset: 0; }
+        }
+
+        /* Toast Message Styles */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff4444;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            animation: slideDown 0.3s ease;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        /* Final Confirmation Step */
+        .confirmation-step {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .confirmation-step h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+
+        .confirmation-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .confirmation-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #0AC4B1;
+        }
+
+        .confirmation-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .confirmation-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .inline-checkbox {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+        }
+
+        .inline-checkbox input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        /* Custom styles for Step 1 */
+        #step1 h3 {
+            font-weight: 600;
+        }
+
+        #step1 ol li, #step1 ul li {
+            font-size: 14px;
+        }
+
+        #confirmReading {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Message Container -->
+    <div id="toast" class="toast"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>☕ [패스오더] <span style="font-weight: bold;">사장님이벤트</span> 신청</h1>
+            <p>간편하게 이벤트를 등록하고 매출을 올려보세요!</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="form-container">
+            <!-- Step 1: 신청서 안내 페이지 -->
+            <div class="step active" id="step1">
+                <h2 class="step-title">📢 [패스오더] <span class="event-highlight">사장님이벤트</span> 참여 매장 모집 안내</h2>
+                
+                <div style="padding: 20px 0;">
+                    <div style="margin-bottom: 25px;">
+                        <p style="font-size: 16px; line-height: 1.6;">
+                            안녕하세요, 패스오더입니다 😊<br>
+                            패스오더와 함께 매장의 매출을 높일 수 있는 <span class="event-highlight">사장님이벤트</span> 기능을 안내드립니다.<br>
+                            그동안 많은 사장님들께서 요청해주신 기능인 만큼, 빠르게 진행해보실 참여 매장을 모집합니다.
+                        </p>
+                    </div>
+
+                    <!-- 사장님이벤트란? -->
+                    <div style="background: #f8f9ff; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h3 style="color: #333; font-size: 18px; margin-bottom: 12px;">💡 <span class="event-highlight">사장님이벤트</span>란?</h3>
+                        <p style="line-height: 1.6; color: #666;">
+                            <span class="event-highlight">사장님이벤트</span>는 사장님 부담의 혜택 제공 방식으로 운영되며, 고객의 이벤트 참여를 통해 매출 증대, 재방문 유도, 신규 고객 유입 효과를 기대할 수 있습니다.<br><br>
+                            이번에 참여 매장으로 접수해주시면 패스오더가 이벤트 설정을 대신 도와드리며, 실제 운영 의견은 추후 기능 개선에 적극 반영됩니다.
+                        </p>
+                    </div>
+
+                    <!-- 이벤트 종류 -->
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="color: #333; font-size: 18px; margin-bottom: 15px;">🎯 이벤트 종류</h3>
+                        
+                        <div style="display: grid; gap: 15px;">
+                            <div style="background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 18px;">
+                                <h4 style="color: #9B7B4F; font-size: 16px; margin-bottom: 8px;">1. 메뉴 할인 이벤트</h4>
+                                <p style="color: #666; line-height: 1.5; margin-bottom: 8px;">지정하신 메뉴에 대해 할인 혜택을 제공합니다.</p>
+                                <div style="background: #f5f5f5; padding: 10px; border-radius: 6px;">
+                                    <span style="color: #888; font-size: 13px;">예) 아메리카노 1,500원 할인 (매일 오전 8시~10시)</span>
+                                </div>
+                            </div>
+                            
+                            <div style="background: white; border: 2px solid #e0e0e0; border-radius: 10px; padding: 18px;">
+                                <h4 style="color: #9B7B4F; font-size: 16px; margin-bottom: 8px;">2. 매장 쿠폰 이벤트</h4>
+                                <p style="color: #666; line-height: 1.5; margin-bottom: 8px;">패스오더 고객이 사용할 수 있는 할인 쿠폰을 제공합니다.</p>
+                                <div style="background: #f5f5f5; padding: 10px; border-radius: 6px;">
+                                    <span style="color: #888; font-size: 13px;">예) 5,000원 이상 주문 시 1,000원 할인 쿠폰 사용 가능</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 참여 혜택 -->
+                    <div style="background: linear-gradient(135deg, #f8f9ff 0%, #fff 100%); padding: 25px; border-radius: 12px; margin-bottom: 25px;">
+                        <h3 style="color: #333; font-size: 18px; margin-bottom: 20px;">🎁 참여 혜택</h3>
+                        
+                        <div style="display: grid; gap: 15px;">
+                            <div style="display: flex; align-items: flex-start;">
+                                <span style="font-size: 24px; margin-right: 12px;">👍</span>
+                                <div>
+                                    <h4 style="color: #333; font-size: 15px; margin-bottom: 5px;">앱 메인·검색 화면에 매장 노출 강화</h4>
+                                    <p style="color: #666; font-size: 13px; line-height: 1.5;">패써들이 자주 보는 앱 메인, 검색 결과, 주변 매장 등에 `매장이벤트` 뱃지와 함께 더 잘 노출돼요!</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: flex-start;">
+                                <span style="font-size: 24px; margin-right: 12px;">✉️</span>
+                                <div>
+                                    <h4 style="color: #333; font-size: 15px; margin-bottom: 5px;">무료 홍보 메세지 발송</h4>
+                                    <p style="color: #666; font-size: 13px; line-height: 1.5;">패써들에게 매장 홍보 메시지를 알림톡, MMS 등 홍보 메세지를 무료로 발송해드려요!</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: flex-start;">
+                                <span style="font-size: 24px; margin-right: 12px;">📍</span>
+                                <div>
+                                    <h4 style="color: #333; font-size: 15px; margin-bottom: 5px;">주변 매장 방문 고객에게 매장 홍보</h4>
+                                    <p style="color: #666; font-size: 13px; line-height: 1.5;">지역 기반 타겟으로 매장을 홍보해드리기 때문에 신규 고객 유입에 유용해요!</p>
+                                </div>
+                            </div>
+                            
+                            <div style="display: flex; align-items: flex-start;">
+                                <span style="font-size: 24px; margin-right: 12px;">🎨</span>
+                                <div>
+                                    <h4 style="color: #333; font-size: 15px; margin-bottom: 5px;">매장 상세페이지 개선</h4>
+                                    <p style="color: #666; font-size: 13px; line-height: 1.5;">이벤트 진행 메뉴가 강조 표시되며, 더 예쁘고 눈에 띄는 매장 페이지 구성으로 패써의 매장 관심도가 높아져요!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 신청 절차 -->
+                    <div style="margin-bottom: 25px;">
+                        <h3 style="color: #333; font-size: 18px; margin-bottom: 15px;">📋 신청 절차</h3>
+                        
+                        <div style="background: white; border: 1px solid #e0e0e0; border-radius: 10px; padding: 20px;">
+                            <ol style="margin: 0; padding-left: 20px; color: #666;">
+                                <li style="margin-bottom: 12px; line-height: 1.5;">매장 정보 및 이벤트 신청 내용 꼼꼼히 작성 후 신청서 제출</li>
+                                <li style="margin-bottom: 12px; line-height: 1.5;">신청서 검토 후 승인 <span style="color: #888; font-size: 13px;">(영업일 기준 1-2일)</span></li>
+                                <li style="margin-bottom: 12px; line-height: 1.5;">알림톡 발송 <span style="color: #888; font-size: 13px;">(영업일 기준 1-2일)</span></li>
+                                <li style="line-height: 1.5;">이벤트 시작! 🎉</li>
+                            </ol>
+                            <p style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #f0f0f0; color: #888; font-size: 13px;">
+                                ※ 이벤트 신청량이 많을 경우, 2-3일 정도 지연될 수 있습니다.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 주의사항 -->
+                    <div style="background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+                        <h3 style="color: #f57c00; font-size: 16px; margin-bottom: 15px;">⚠️ 꼭 확인해주세요!</h3>
+                        <ul style="margin: 0; padding-left: 20px; color: #666;">
+                            <li style="margin-bottom: 10px; line-height: 1.5;">신청서 제출 후 특별한 사유 없이 이벤트 취소가 어렵습니다 <span style="color: #888;">(내용 수정은 가능)</span></li>
+                            <li style="margin-bottom: 10px; line-height: 1.5;">메뉴 할인, 매장 쿠폰 중 한 가지만 선택하셔도 되고, 두 가지 모두 진행하셔도 좋습니다</li>
+                            <li style="margin-bottom: 10px; line-height: 1.5;">추후 사장님 웹페이지에서 직접 이벤트를 설정하실 수 있도록 개선 예정입니다</li>
+                        </ul>
+                    </div>
+
+                    <!-- 동의 체크박스 -->
+                    <div style="background: #f5f5f5; padding: 20px; border-radius: 10px; margin-bottom: 10px;">
+                        <label class="checkbox-item" style="cursor: pointer; display: flex; align-items: center;">
+                            <input type="checkbox" id="confirmReading" style="width: auto; margin-right: 10px;">
+                            <span style="font-size: 15px; font-weight: 500; color: #333;">
+                                위 안내사항을 모두 확인했으며, <span class="event-highlight">사장님이벤트</span> 신청을 진행하겠습니다.
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="proceedToStep2()" style="width: 100%;">신청 시작하기</button>
+                </div>
+            </div>
+
+            <!-- Step 2: 매장 정보 수집 -->
+            <div class="step" id="step2">
+                <h2 class="step-title">🏪 매장 정보</h2>
+                <p class="step-description">패스오더에 등록된 내용을 기준으로 작성해주세요.</p>
+                
+                <div class="form-group">
+                    <label>매장명 <span class="required">*</span></label>
+                    <input type="text" id="storeName" placeholder="예: 패스커피">
+                    <span class="error-message" id="storeNameError">매장명을 입력해주세요</span>
+                </div>
+
+                <div class="form-group">
+                    <label>사장님 성함 <span class="required">*</span></label>
+                    <input type="text" id="ownerName" placeholder="예: 홍길동">
+                    <span class="error-message" id="ownerNameError">사장님 성함을 입력해주세요</span>
+                </div>
+
+                <div class="form-group">
+                    <label>사장님 연락처 <span class="required">*</span></label>
+                    <input type="tel" id="ownerPhone" placeholder="예: 010-1234-5678" maxlength="13">
+                    <span class="error-message" id="ownerPhoneError">연락처를 입력해주세요</span>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(2)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(2)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 3: 이벤트 유형 선택 -->
+            <div class="step" id="step3">
+                <h2 class="step-title">🎯 어떤 사장님이벤트를 진행하고 싶으신가요?</h2>
+                <p class="step-description">진행하실 이벤트 유형을 선택해주세요.</p>
+                
+                <div class="form-group">
+                    <div class="radio-group">
+                        <label class="radio-item" onclick="selectEventType('menu')">
+                            <input type="radio" name="eventType" value="menu">
+                            <div>
+                                <strong>🍽️ 메뉴 할인 이벤트</strong>
+                                <p style="margin-top: 5px; font-size: 12px; color: #666;">특정 메뉴에 할인을 적용하여 고객 유치</p>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectEventType('coupon')">
+                            <input type="radio" name="eventType" value="coupon">
+                            <div>
+                                <strong>🎫 매장 쿠폰 이벤트</strong>
+                                <p style="margin-top: 5px; font-size: 12px; color: #666;">다운로드 가능한 할인 쿠폰 제공</p>
+                            </div>
+                        </label>
+                    </div>
+                    <span class="error-message" id="eventTypeError">이벤트 유형을 선택해주세요</span>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(3)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(3)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 4: [메뉴 할인] 이벤트 메뉴 선택 -->
+            <div class="step" id="step4">
+                <h2 class="step-title">🍽️ [메뉴 할인 이벤트] 이벤트 메뉴 선택</h2>
+                <p class="step-description">최소 1개, 최대 10개까지 신청 가능합니다. 할인을 적용할 메뉴를 입력해주세요.</p>
+                
+                <div id="menuContainer">
+                    <div class="menu-item">
+                        <label>메뉴 1 <span class="required">*</span></label>
+                        <input type="text" id="menu1" placeholder="예: 아메리카노">
+                        <span class="error-message" id="menu1Error">메뉴 1은 필수 입력 항목입니다</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-add" onclick="addMenu()" id="addMenuBtn">메뉴 추가</button>
+                
+                <div class="inline-checkbox" style="margin-top: 20px;">
+                    <input type="checkbox" id="menuConfirm">
+                    <label for="menuConfirm">패스오더에 등록된 메뉴명을 기준으로 작성하였습니다. <span class="required">*</span></label>
+                </div>
+                <span class="error-message" id="menuConfirmError">체크해주세요</span>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(4)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(4)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 5: [메뉴 할인] 할인 방식 선택 -->
+            <div class="step" id="step5">
+                <h2 class="step-title">💰 [메뉴 할인 이벤트] 할인 방식 선택</h2>
+                <p class="step-description">원하시는 할인 방식을 선택해주세요.</p>
+                
+                <div class="form-group">
+                    <div class="radio-group">
+                        <label class="radio-item" onclick="selectDiscountType('amount')">
+                            <input type="radio" name="discountType" value="amount">
+                            <span>금액 할인 (원)</span>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectDiscountType('percent')">
+                            <input type="radio" name="discountType" value="percent">
+                            <span>정률 할인 (%)</span>
+                        </label>
+                    </div>
+                    <span class="error-message" id="discountTypeError">할인 방식을 선택해주세요</span>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(5)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(5)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 6: [메뉴 할인] 할인 금액 설정 -->
+            <div class="step" id="step6">
+                <h2 class="step-title">💵 [메뉴 할인 이벤트] 할인 금액 설정</h2>
+                <p class="step-description">할인 금액을 입력해주세요.</p>
+                
+                <div class="form-group">
+                    <label>할인 금액 <span class="required">*</span></label>
+                    <input type="number" id="discountAmount" placeholder="예: 1000" min="100" step="10">
+                    <span class="helper-text">100원 이상, 10원 단위로 입력해주세요</span>
+                    <span class="error-message" id="discountAmountError">올바른 할인 금액을 입력해주세요</span>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(6)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(6)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 7: [메뉴 할인] 할인율 설정 -->
+            <div class="step" id="step7">
+                <h2 class="step-title">📊 [메뉴 할인 이벤트] 할인율 설정</h2>
+                <p class="step-description">할인율을 선택해주세요.</p>
+                
+                <div class="form-group">
+                    <label>할인율 <span class="required">*</span></label>
+                    <select id="discountRate">
+                        <option value="">할인율 선택</option>
+                        <option value="5">5%</option>
+                        <option value="10">10%</option>
+                        <option value="15">15%</option>
+                        <option value="20">20%</option>
+                        <option value="25">25%</option>
+                        <option value="30">30%</option>
+                        <option value="35">35%</option>
+                        <option value="40">40%</option>
+                        <option value="45">45%</option>
+                        <option value="50">50%</option>
+                        <option value="55">55%</option>
+                        <option value="60">60%</option>
+                    </select>
+                    <span class="error-message" id="discountRateError">할인율을 선택해주세요</span>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(7)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(7)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 8: [메뉴 할인] 이벤트 진행 시간 선택 -->
+            <div class="step" id="step8">
+                <h2 class="step-title">⏰ [메뉴 할인 이벤트] 이벤트 진행 시간 선택</h2>
+                <p class="step-description">이벤트를 진행할 시간대를 설정해주세요.</p>
+                
+                <div class="form-group">
+                    <div class="inline-checkbox">
+                        <input type="checkbox" id="allDayTime" onchange="toggleTimeSelection()">
+                        <label for="allDayTime">시간 선택 안함 (영업시간 전체 적용)</label>
+                    </div>
+                </div>
+
+                <div id="timeSelectionArea">
+                    <div class="form-group">
+                        <label>이벤트 시작 시간</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="startPeriod" style="flex: 1;" onchange="updateStartTimeOptions()">
+                                <option value="">오전/오후 선택</option>
+                                <option value="am">오전</option>
+                                <option value="pm">오후</option>
+                            </select>
+                            <select id="startTime" style="flex: 2;" disabled>
+                                <option value="">먼저 오전/오후를 선택해주세요</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>이벤트 종료 시간</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="endPeriod" style="flex: 1;" onchange="updateEndTimeOptions()" disabled>
+                                <option value="">오전/오후 선택</option>
+                                <option value="am">오전</option>
+                                <option value="pm">오후</option>
+                            </select>
+                            <select id="endTime" style="flex: 2;" disabled>
+                                <option value="">먼저 시작 시간을 선택해주세요</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="time-result" id="timeResult"></div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(8)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(8)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 9: [메뉴 할인] 이벤트 진행 기간 선택 -->
+            <div class="step" id="step9">
+                <h2 class="step-title">📅 [메뉴 할인 이벤트] 이벤트 진행 기간 선택</h2>
+                <p class="step-description">이벤트 진행 기간을 설정해주세요.</p>
+                
+                <div class="form-group">
+                    <div class="inline-checkbox">
+                        <input type="checkbox" id="alwaysEvent" onchange="toggleDateSelection()">
+                        <label for="alwaysEvent">기간 선택 안함 (상시 진행)</label>
+                    </div>
+                </div>
+
+                <div id="dateSelectionArea">
+                    <div class="form-group">
+                        <label>이벤트 시작 날짜</label>
+                        <input type="date" id="eventStartDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>이벤트 종료 날짜</label>
+                        <input type="date" id="eventEndDate">
+                    </div>
+
+                    <div class="date-result" id="dateResult"></div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(9)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(9)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 10: [메뉴 할인] 구매 정책 선택 -->
+            <div class="step" id="step10">
+                <h2 class="step-title">🔄 [메뉴 할인 이벤트] 구매 정책 선택</h2>
+                <p class="step-description">주문 횟수에 대한 제한입니다. (1회 주문 시 메뉴 여러 개 주문 가능)</p>
+                
+                <div class="form-group">
+                    <div class="radio-group">
+                        <label class="radio-item selected" onclick="selectPurchasePolicy('repeat')">
+                            <input type="radio" name="purchasePolicy" value="repeat" checked>
+                            <div>
+                                <strong>반복 사용</strong>
+                                <p style="margin-top: 5px; font-size: 12px; color: #666;">이벤트 종료될 때까지 계속 할인 받아서 주문 가능</p>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectPurchasePolicy('daily')">
+                            <input type="radio" name="purchasePolicy" value="daily">
+                            <div>
+                                <strong>하루에 1번 사용</strong>
+                                <p style="margin-top: 5px; font-size: 12px; color: #666;">하루에 한번만 이벤트 참여 가능</p>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectPurchasePolicy('once')">
+                            <input type="radio" name="purchasePolicy" value="once">
+                            <div>
+                                <strong>고객 당 1번 사용</strong>
+                                <p style="margin-top: 5px; font-size: 12px; color: #666;">고객 당 한번만 할인 받아서 주문 가능</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(10)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(10)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 11: [메뉴 할인] 이벤트 메뉴 구매 시 적립 여부 -->
+            <div class="step" id="step11">
+                <h2 class="step-title">💳 [메뉴 할인 이벤트] 이벤트 메뉴 구매 시 적립 여부</h2>
+                <p class="step-description">이벤트 메뉴 구매 시 포인트 적립 정책을 설정해주세요.</p>
+                
+                <div class="form-group">
+                    <div style="background: #f8f9ff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px;">
+                        <label style="display: block; cursor: pointer;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="flex: 0 0 30px; display: flex; align-items: center; justify-content: center;">
+                                    <input type="checkbox" id="hasReward" onchange="toggleRewardOptions()" style="width: 18px; height: 18px; cursor: pointer;">
+                                </div>
+                                <div style="flex: 1; padding-left: 10px;">
+                                    <p style="font-size: 13px; color: #888; margin-bottom: 6px; line-height: 1.4;">
+                                        패스오더를 통해 적립 중인 매장만 선택 가능한 항목입니다.
+                                    </p>
+                                    <p style="font-size: 16px; color: #333; font-weight: 600; line-height: 1.4;">
+                                        패스오더에서 적립 진행 중이신가요?
+                                    </p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="rewardOptions" style="display: none; margin-top: 20px;">
+                    <div class="radio-group">
+                        <label class="radio-item selected" onclick="selectRewardPolicy('no')">
+                            <input type="radio" name="rewardPolicy" value="no" checked>
+                            <span>적립 불가</span>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectRewardPolicy('yes')">
+                            <input type="radio" name="rewardPolicy" value="yes">
+                            <span>적립 가능</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(11)">이전</button>
+                    <button class="btn btn-primary" onclick="prepareMenuEventSummary()">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 11-1: [메뉴 할인] 최종 확인 -->
+            <div class="step" id="step11_confirm">
+                <h2 class="step-title">✅ [메뉴 할인 이벤트] 최종 확인</h2>
+                <p class="step-description">신청 내용을 최종 확인하고 제출해주세요.</p>
+                
+                <div class="confirmation-step">
+                    <h3>📋 신청 내용 요약</h3>
+                    <div class="confirmation-grid" id="menuEventConfirmation"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="agreeTerms">
+                        <span>위 내용이 정확함을 확인하였으며, <span class="event-highlight">사장님이벤트</span> 진행에 동의합니다. <span class="required">*</span></span>
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="backToStep11()">이전</button>
+                    <button class="btn btn-primary" onclick="submitMenuEvent()">최종 제출</button>
+                </div>
+            </div>
+
+            <!-- Step 12: [매장 쿠폰] 쿠폰 금액 설정 -->
+            <div class="step" id="step12">
+                <h2 class="step-title">💵 [매장 쿠폰 이벤트] 쿠폰 금액 설정</h2>
+                <p class="step-description">최소 1개, 최대 5개까지 신청 가능합니다. 발행할 쿠폰의 금액을 설정해주세요.</p>
+                
+                <div id="couponContainer">
+                    <div class="coupon-item">
+                        <h4>쿠폰 1</h4>
+                        <div class="form-group">
+                            <label>쿠폰 금액 <span class="required">*</span></label>
+                            <input type="number" id="coupon1Amount" placeholder="예: 1000" min="500" step="10">
+                            <span class="helper-text">500원 이상, 10원 단위로 입력해주세요</span>
+                            <span class="error-message" id="coupon1AmountError">올바른 쿠폰 금액을 입력해주세요</span>
+                        </div>
+                        <div class="form-group">
+                            <label>최소 주문 금액</label>
+                            <input type="number" id="coupon1MinOrder" placeholder="예: 5000" step="10">
+                            <span class="helper-text">최소 주문 금액 - 쿠폰 금액이 500원 이상이어야 합니다</span>
+                            <span class="error-message" id="coupon1MinOrderError">최소 주문 금액이 쿠폰 금액보다 500원 이상 많아야 합니다</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn btn-add" onclick="addCoupon()" id="addCouponBtn">쿠폰 추가</button>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(12)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(12)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 13: [매장 쿠폰] 이벤트 진행 기간 선택 -->
+            <div class="step" id="step13">
+                <h2 class="step-title">📅 [매장 쿠폰 이벤트] 이벤트 진행 기간 선택</h2>
+                <p class="step-description">쿠폰 이벤트 진행 기간을 설정해주세요.</p>
+                
+                <div class="form-group">
+                    <div class="inline-checkbox">
+                        <input type="checkbox" id="alwaysCouponEvent" onchange="toggleCouponDateSelection()">
+                        <label for="alwaysCouponEvent">기간 선택 안함 (상시)</label>
+                    </div>
+                </div>
+
+                <div id="couponDateSelectionArea">
+                    <div class="form-group">
+                        <label>이벤트 시작 날짜</label>
+                        <input type="date" id="couponStartDate">
+                    </div>
+
+                    <div class="form-group">
+                        <label>이벤트 종료 날짜</label>
+                        <input type="date" id="couponEndDate">
+                    </div>
+
+                    <div class="date-result" id="couponDateResult"></div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(13)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(13)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 14: [매장 쿠폰] 쿠폰 유효기간 선택 -->
+            <div class="step" id="step14">
+                <h2 class="step-title">⏳ [매장 쿠폰 이벤트] 쿠폰 유효기간 선택</h2>
+                <p class="step-description">쿠폰을 다운로드한 시점부터 사용할 수 있는 유효기간입니다. (이벤트 진행 기간과는 별개)</p>
+                
+                <div class="form-group">
+                    <div class="radio-group">
+                        <label class="radio-item selected" onclick="selectCouponValidity('7')">
+                            <input type="radio" name="couponValidity" value="7" checked>
+                            <span>7일</span>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectCouponValidity('14')">
+                            <input type="radio" name="couponValidity" value="14">
+                            <span>14일</span>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectCouponValidity('30')">
+                            <input type="radio" name="couponValidity" value="30">
+                            <span>30일</span>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectCouponValidity('1')">
+                            <input type="radio" name="couponValidity" value="1">
+                            <span>당일</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(14)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(14)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 15: [매장 쿠폰] 구매 정책 선택 -->
+            <div class="step" id="step15">
+                <h2 class="step-title">🔄 [매장 쿠폰 이벤트] 구매 정책 선택</h2>
+                <p class="step-description">개별 쿠폰 사용에 대한 제한 정책입니다.</p>
+                
+                <div class="form-group">
+                    <div class="radio-group">
+                        <label class="radio-item selected" onclick="selectCouponPolicy('repeat')">
+                            <input type="radio" name="couponPolicy" value="repeat" checked>
+                            <div>
+                                <strong>반복 사용</strong>
+                                <p style="margin-top: 5px; font-size: 12px; color: #666;">이벤트 마감될 때까지 계속 쿠폰 사용 가능</p>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectCouponPolicy('daily')">
+                            <input type="radio" name="couponPolicy" value="daily">
+                            <div>
+                                <strong>하루에 1번 사용</strong>
+                                <p style="margin-top: 5px; font-size: 12px; color: #666;">하루에 한번만 쿠폰 사용 가능</p>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectCouponPolicy('once')">
+                            <input type="radio" name="couponPolicy" value="once">
+                            <div>
+                                <strong>고객 당 1번 사용</strong>
+                                <p style="margin-top: 5px; font-size: 12px; color: #666;">유저 기준 한번만 쿠폰 사용 가능</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(15)">이전</button>
+                    <button class="btn btn-primary" onclick="nextStep(15)">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 16: [매장 쿠폰] 이벤트 적립 여부 -->
+            <div class="step" id="step16">
+                <h2 class="step-title">💳 [매장 쿠폰 이벤트] 이벤트 적립 여부</h2>
+                <p class="step-description">쿠폰 사용 시 포인트 적립 정책을 설정해주세요.</p>
+                
+                <div class="form-group">
+                    <div style="background: #f8f9ff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 20px;">
+                        <label style="display: block; cursor: pointer;">
+                            <div style="display: flex; align-items: center;">
+                                <div style="flex: 0 0 30px; display: flex; align-items: center; justify-content: center;">
+                                    <input type="checkbox" id="hasCouponReward" onchange="toggleCouponRewardOptions()" style="width: 18px; height: 18px; cursor: pointer;">
+                                </div>
+                                <div style="flex: 1; padding-left: 10px;">
+                                    <p style="font-size: 13px; color: #888; margin-bottom: 6px; line-height: 1.4;">
+                                        패스오더를 통해 적립 중인 매장만 선택 가능한 항목입니다.
+                                    </p>
+                                    <p style="font-size: 16px; color: #333; font-weight: 600; line-height: 1.4;">
+                                        패스오더에서 적립 진행 중이신가요?
+                                    </p>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="couponRewardOptions" style="display: none; margin-top: 20px;">
+                    <div class="radio-group">
+                        <label class="radio-item selected" onclick="selectCouponRewardPolicy('no')">
+                            <input type="radio" name="couponRewardPolicy" value="no" checked>
+                            <span>적립 불가</span>
+                        </label>
+                        
+                        <label class="radio-item" onclick="selectCouponRewardPolicy('yes')">
+                            <input type="radio" name="couponRewardPolicy" value="yes">
+                            <span>적립 가능</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="prevStep(16)">이전</button>
+                    <button class="btn btn-primary" onclick="prepareCouponEventSummary()">다음 단계</button>
+                </div>
+            </div>
+
+            <!-- Step 16-1: [매장 쿠폰] 최종 확인 -->
+            <div class="step" id="step16_confirm">
+                <h2 class="step-title">✅ [매장 쿠폰 이벤트] 최종 확인</h2>
+                <p class="step-description">신청 내용을 최종 확인하고 제출해주세요.</p>
+                
+                <div class="confirmation-step">
+                    <h3>📋 신청 내용 요약</h3>
+                    <div class="confirmation-grid" id="couponEventConfirmation"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="agreeCouponTerms">
+                        <span>위 내용이 정확함을 확인하였으며, <span class="event-highlight">사장님이벤트</span> 진행에 동의합니다. <span class="required">*</span></span>
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn btn-secondary" onclick="backToStep16()">이전</button>
+                    <button class="btn btn-primary" onclick="submitCouponEvent()">최종 제출</button>
+                </div>
+            </div>
+
+            <!-- Success Message -->
+            <div class="step" id="successStep">
+                <div class="success-animation">
+                    <div class="checkmark">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h2 class="step-title">신청이 완료되었습니다!</h2>
+                    <p class="step-description">
+                        <span class="event-highlight">사장님이벤트</span> 신청이 성공적으로 접수되었습니다.<br>
+                        5일 이내에 검토 후 승인 여부를 안내드리겠습니다.
+                    </p>
+                    <button class="btn btn-primary" onclick="resetForm()">새 신청서 작성</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        
+  // ===== PassOrder → Google Apps Script Web App =====
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyf576nDzBRHXgQJXdsdW3tZaqe7uoC2MrTKcaHEnVWBR_0e0S0RM8rxyhit7_7RsQ7/exec";
+
+  async function postToSheet(payload) {
+    try {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+      });
+      return true;
+    } catch (e) {
+      console.error("postToSheet failed", e);
+      return false;
+    }
+  }
+
+let currentStep = 1;
+        let formData = {};
+        let eventPath = '';
+        let menuCount = 1;
+        let couponCount = 1;
+
+        // Proceed to step 2 with checkbox validation
+        function proceedToStep2() {
+            const confirmCheckbox = document.getElementById('confirmReading');
+            if (!confirmCheckbox.checked) {
+                showToast('안내사항 확인에 동의해주세요');
+                return;
+            }
+            
+            document.getElementById('step1').classList.remove('active');
+            currentStep = 2;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgressBar();
+            scrollToTop();
+        }
+
+        // Toast message function
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Scroll to top function for mobile
+        function scrollToTop() {
+            if (window.innerWidth <= 600) {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // Initialize time options
+        function initializeTimeOptions() {
+            // 새로운 시간 선택 방식 - 오전/오후 먼저 선택
+            // 초기화는 이벤트 리스너만 설정
+        }
+
+        // Update start time options based on period selection
+        function updateStartTimeOptions() {
+            const period = document.getElementById('startPeriod').value;
+            const startTimeSelect = document.getElementById('startTime');
+            
+            if (!period) {
+                startTimeSelect.disabled = true;
+                startTimeSelect.innerHTML = '<option value="">먼저 오전/오후를 선택해주세요</option>';
+                return;
+            }
+            
+            startTimeSelect.disabled = false;
+            startTimeSelect.innerHTML = '<option value="">시간 선택</option>';
+            
+            let hours = [];
+            if (period === 'am') {
+                // 오전 5시부터 11시 30분까지
+                for (let hour = 5; hour <= 11; hour++) {
+                    hours.push(hour);
+                }
+            } else {
+                // 오후 12시부터 11시 30분까지 (12시~23시)
+                for (let hour = 12; hour <= 23; hour++) {
+                    hours.push(hour);
+                }
+            }
+            
+            hours.forEach(hour => {
+                for (let minute of [0, 30]) {
+                    const h = hour.toString().padStart(2, '0');
+                    const m = minute.toString().padStart(2, '0');
+                    const displayHour = hour <= 12 ? hour : hour - 12;
+                    const displayPeriod = hour < 12 ? '오전' : '오후';
+                    
+                    const option = document.createElement('option');
+                    option.value = `${h}:${m}`;
+                    option.textContent = `${displayHour === 0 ? 12 : displayHour}시 ${m === '00' ? '' : '30분'}`;
+                    startTimeSelect.appendChild(option);
+                }
+            });
+            
+            startTimeSelect.addEventListener('change', function() {
+                // 시작 시간이 선택되면 종료 시간 오전/오후 활성화
+                const endPeriod = document.getElementById('endPeriod');
+                if (this.value) {
+                    endPeriod.disabled = false;
+                    // 종료 시간 초기화
+                    endPeriod.value = '';
+                    document.getElementById('endTime').disabled = true;
+                    document.getElementById('endTime').innerHTML = '<option value="">먼저 오전/오후를 선택해주세요</option>';
+                } else {
+                    endPeriod.disabled = true;
+                    endPeriod.value = '';
+                    document.getElementById('endTime').disabled = true;
+                    document.getElementById('endTime').innerHTML = '<option value="">먼저 시작 시간을 선택해주세요</option>';
+                }
+                calculateTimeRange();
+            });
+        }
+
+        // Update end time options based on start time and period
+        function updateEndTimeOptions() {
+            const startTime = document.getElementById('startTime').value;
+            const endPeriod = document.getElementById('endPeriod').value;
+            const endTimeSelect = document.getElementById('endTime');
+            
+            if (!startTime || !endPeriod) {
+                endTimeSelect.disabled = true;
+                endTimeSelect.innerHTML = '<option value="">먼저 오전/오후를 선택해주세요</option>';
+                return;
+            }
+            
+            endTimeSelect.disabled = false;
+            endTimeSelect.innerHTML = '<option value="">시간 선택</option>';
+            
+            const [startHour, startMinute] = startTime.split(':').map(Number);
+            const startTotalMinutes = startHour * 60 + startMinute;
+            
+            let hours = [];
+            if (endPeriod === 'am') {
+                for (let hour = 5; hour <= 11; hour++) {
+                    hours.push(hour);
+                }
+            } else {
+                for (let hour = 12; hour <= 23; hour++) {
+                    hours.push(hour);
+                }
+            }
+            
+            hours.forEach(hour => {
+                for (let minute of [0, 30]) {
+                    const totalMinutes = hour * 60 + minute;
+                    // 종료 시간은 시작 시간보다 최소 30분 이후여야 함
+                    if (totalMinutes > startTotalMinutes) {
+                        const h = hour.toString().padStart(2, '0');
+                        const m = minute.toString().padStart(2, '0');
+                        const displayHour = hour <= 12 ? hour : hour - 12;
+                        
+                        const option = document.createElement('option');
+                        option.value = `${h}:${m}`;
+                        option.textContent = `${displayHour === 0 ? 12 : displayHour}시 ${m === '00' ? '' : '30분'}`;
+                        endTimeSelect.appendChild(option);
+                    }
+                }
+            });
+            
+            // 만약 선택 가능한 옵션이 없다면 (시작 시간이 너무 늦은 경우)
+            if (endTimeSelect.options.length === 1) {
+                endTimeSelect.innerHTML = '<option value="">선택 가능한 종료 시간이 없습니다</option>';
+                // 다른 오전/오후를 선택하도록 안내
+                const startPeriod = document.getElementById('startPeriod').value;
+                if (startPeriod === 'pm' && endPeriod === 'am') {
+                    endTimeSelect.innerHTML = '<option value="">오후를 선택해주세요</option>';
+                }
+            }
+            
+            endTimeSelect.addEventListener('change', calculateTimeRange);
+        }
+
+        // Calculate and display time range
+        function calculateTimeRange() {
+            const startTime = document.getElementById('startTime').value;
+            const endTime = document.getElementById('endTime').value;
+            const resultDiv = document.getElementById('timeResult');
+            
+            if (startTime && endTime) {
+                const [startHour, startMinute] = startTime.split(':').map(Number);
+                const [endHour, endMinute] = endTime.split(':').map(Number);
+                
+                const startMinutes = startHour * 60 + startMinute;
+                const endMinutes = endHour * 60 + endMinute;
+                const diffMinutes = endMinutes - startMinutes;
+                
+                const hours = Math.floor(diffMinutes / 60);
+                const minutes = diffMinutes % 60;
+                
+                let result = `총 ${hours}시간`;
+                if (minutes > 0) {
+                    result += ` ${minutes}분`;
+                }
+                
+                // 시작 시간과 종료 시간 표시
+                const formatTime = (time) => {
+                    const [hour, minute] = time.split(':').map(Number);
+                    const period = hour < 12 ? '오전' : '오후';
+                    const displayHour = hour <= 12 ? hour : hour - 12;
+                    return `${period} ${displayHour === 0 ? 12 : displayHour}시${minute === 0 ? '' : ' 30분'}`;
+                };
+                
+                result += ` (${formatTime(startTime)} ~ ${formatTime(endTime)})`;
+                
+                resultDiv.textContent = result;
+                resultDiv.classList.add('show');
+            } else {
+                resultDiv.classList.remove('show');
+            }
+        }
+
+        // Initialize date inputs
+        function initializeDateInputs() {
+            const today = new Date();
+            const minDate = new Date(today);
+            minDate.setDate(minDate.getDate() + 5);
+            
+            const maxDate = new Date(today);
+            maxDate.setFullYear(maxDate.getFullYear() + 1);
+            
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            
+            const dateInputs = ['eventStartDate', 'eventEndDate', 'couponStartDate', 'couponEndDate'];
+            dateInputs.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.min = formatDate(minDate);
+                    input.max = formatDate(maxDate);
+                    input.addEventListener('change', () => calculateDateRange(id.includes('coupon') ? 'coupon' : 'event'));
+                }
+            });
+        }
+
+        // Calculate and display date range
+        function calculateDateRange(type = 'event') {
+            const startDateId = type === 'coupon' ? 'couponStartDate' : 'eventStartDate';
+            const endDateId = type === 'coupon' ? 'couponEndDate' : 'eventEndDate';
+            const resultId = type === 'coupon' ? 'couponDateResult' : 'dateResult';
+            
+            const startDate = document.getElementById(startDateId).value;
+            const endDate = document.getElementById(endDateId).value;
+            const resultDiv = document.getElementById(resultId);
+            
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const diffTime = Math.abs(end - start);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                
+                resultDiv.textContent = `총 ${diffDays}일`;
+                resultDiv.classList.add('show');
+            } else {
+                resultDiv.classList.remove('show');
+            }
+        }
+
+        // Toggle functions
+        function toggleTimeSelection() {
+            const checkbox = document.getElementById('allDayTime');
+            const timeArea = document.getElementById('timeSelectionArea');
+            timeArea.style.display = checkbox.checked ? 'none' : 'block';
+            
+            // 체크박스 해제 시 시간 선택 초기화
+            if (!checkbox.checked) {
+                document.getElementById('startPeriod').value = '';
+                document.getElementById('startTime').value = '';
+                document.getElementById('startTime').disabled = true;
+                document.getElementById('startTime').innerHTML = '<option value="">먼저 오전/오후를 선택해주세요</option>';
+                
+                document.getElementById('endPeriod').value = '';
+                document.getElementById('endPeriod').disabled = true;
+                document.getElementById('endTime').value = '';
+                document.getElementById('endTime').disabled = true;
+                document.getElementById('endTime').innerHTML = '<option value="">먼저 시작 시간을 선택해주세요</option>';
+                
+                document.getElementById('timeResult').classList.remove('show');
+            }
+        }
+
+        function toggleDateSelection() {
+            const checkbox = document.getElementById('alwaysEvent');
+            const dateArea = document.getElementById('dateSelectionArea');
+            dateArea.style.display = checkbox.checked ? 'none' : 'block';
+        }
+
+        function toggleCouponDateSelection() {
+            const checkbox = document.getElementById('alwaysCouponEvent');
+            const dateArea = document.getElementById('couponDateSelectionArea');
+            dateArea.style.display = checkbox.checked ? 'none' : 'block';
+        }
+
+        function toggleRewardOptions() {
+            const checkbox = document.getElementById('hasReward');
+            const options = document.getElementById('rewardOptions');
+            options.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        function toggleCouponRewardOptions() {
+            const checkbox = document.getElementById('hasCouponReward');
+            const options = document.getElementById('couponRewardOptions');
+            options.style.display = checkbox.checked ? 'block' : 'none';
+        }
+
+        // Add menu item
+        function addMenu() {
+            if (menuCount >= 10) {
+                alert('최대 10개까지만 추가할 수 있습니다.');
+                return;
+            }
+            
+            menuCount++;
+            const container = document.getElementById('menuContainer');
+            const menuItem = document.createElement('div');
+            menuItem.className = 'menu-item';
+            menuItem.id = `menuItem${menuCount}`;
+            menuItem.innerHTML = `
+                <button class="remove-btn" onclick="removeMenu(${menuCount})">삭제</button>
+                <label>메뉴 ${menuCount}</label>
+                <input type="text" id="menu${menuCount}" placeholder="예: 카페라떼">
+            `;
+            container.appendChild(menuItem);
+            
+            if (menuCount >= 10) {
+                document.getElementById('addMenuBtn').style.display = 'none';
+            }
+        }
+
+        function removeMenu(num) {
+            document.getElementById(`menuItem${num}`).remove();
+            menuCount--;
+            if (menuCount < 10) {
+                document.getElementById('addMenuBtn').style.display = 'block';
+            }
+        }
+
+        // Add coupon
+        function addCoupon() {
+            if (couponCount >= 5) {
+                alert('최대 5개까지만 추가할 수 있습니다.');
+                return;
+            }
+            
+            couponCount++;
+            const container = document.getElementById('couponContainer');
+            const couponItem = document.createElement('div');
+            couponItem.className = 'coupon-item';
+            couponItem.id = `couponItem${couponCount}`;
+            couponItem.innerHTML = `
+                <button class="remove-btn" onclick="removeCoupon(${couponCount})">삭제</button>
+                <h4>쿠폰 ${couponCount}</h4>
+                <div class="form-group">
+                    <label>쿠폰 금액</label>
+                    <input type="number" id="coupon${couponCount}Amount" placeholder="예: 1000" min="500" step="10">
+                    <span class="helper-text">500원 이상, 10원 단위로 입력해주세요</span>
+                    <span class="error-message" id="coupon${couponCount}AmountError">올바른 쿠폰 금액을 입력해주세요</span>
+                </div>
+                <div class="form-group">
+                    <label>최소 주문 금액</label>
+                    <input type="number" id="coupon${couponCount}MinOrder" placeholder="예: 5000" step="10">
+                    <span class="helper-text">최소 주문 금액 - 쿠폰 금액이 500원 이상이어야 합니다</span>
+                    <span class="error-message" id="coupon${couponCount}MinOrderError">최소 주문 금액이 쿠폰 금액보다 500원 이상 많아야 합니다</span>
+                </div>
+            `;
+            container.appendChild(couponItem);
+            
+            if (couponCount >= 5) {
+                document.getElementById('addCouponBtn').style.display = 'none';
+            }
+        }
+
+        function removeCoupon(num) {
+            // 쿠폰1은 삭제 불가
+            if (num === 1) {
+                showToast('쿠폰 1은 필수 항목이므로 삭제할 수 없습니다');
+                return;
+            }
+            
+            const couponItem = document.getElementById(`couponItem${num}`);
+            if (couponItem) {
+                couponItem.remove();
+            }
+            
+            // 에러 메시지 숨기기
+            hideError(`coupon${num}AmountError`);
+            hideError(`coupon${num}MinOrderError`);
+            
+            // 추가 버튼 다시 표시
+            if (couponCount >= 5) {
+                const addBtn = document.getElementById('addCouponBtn');
+                if (addBtn) addBtn.style.display = 'block';
+            }
+        }
+
+        // Selection functions
+        function selectEventType(type) {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+            eventPath = type;
+        }
+
+        function selectDiscountType(type) {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function selectPurchasePolicy(policy) {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function selectRewardPolicy(policy) {
+            document.querySelectorAll('#rewardOptions .radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function selectCouponValidity(days) {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function selectCouponPolicy(policy) {
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        function selectCouponRewardPolicy(policy) {
+            document.querySelectorAll('#couponRewardOptions .radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+        }
+
+        // Update progress bar
+        function updateProgressBar() {
+            let totalSteps;
+            let stepPosition;
+            
+            if (currentStep <= 3) {
+                totalSteps = 16;
+                stepPosition = currentStep;
+            } else if (eventPath === 'menu') {
+                totalSteps = 11.5;  // 11단계 + 최종확인(0.5)
+                if (currentStep === 11.5) {
+                    stepPosition = 11.5;
+                } else {
+                    stepPosition = currentStep - 3;
+                }
+            } else if (eventPath === 'coupon') {
+                totalSteps = 6.5;  // 6단계 + 최종확인(0.5)
+                if (currentStep === 16.5) {
+                    stepPosition = 6.5;
+                } else {
+                    stepPosition = currentStep - 11;
+                }
+            }
+            
+            const progress = (stepPosition / totalSteps) * 100;
+            document.getElementById('progressBar').style.width = Math.min(progress, 98) + '%';  // 최대 98%까지
+        }
+
+        // Validation functions
+        function validateStep(step) {
+            let isValid = true;
+            let errorMessage = '';
+            
+            switch(step) {
+                case 2:
+                    const storeName = document.getElementById('storeName').value;
+                    const ownerName = document.getElementById('ownerName').value;
+                    const ownerPhone = document.getElementById('ownerPhone').value;
+                    
+                    if (!storeName) {
+                        showError('storeNameError');
+                        errorMessage = '매장명을 입력해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('storeNameError');
+                    }
+                    
+                    if (!ownerName) {
+                        showError('ownerNameError');
+                        if (!errorMessage) errorMessage = '사장님 성함을 입력해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('ownerNameError');
+                    }
+                    
+                    if (!ownerPhone || !/^\d{3}-\d{4}-\d{4}$/.test(ownerPhone)) {
+                        showError('ownerPhoneError');
+                        if (!errorMessage) errorMessage = '올바른 연락처를 입력해주세요 (예: 010-1234-5678)';
+                        isValid = false;
+                    } else {
+                        hideError('ownerPhoneError');
+                    }
+                    break;
+                    
+                case 3:
+                    const eventType = document.querySelector('input[name="eventType"]:checked');
+                    if (!eventType) {
+                        showError('eventTypeError');
+                        errorMessage = '이벤트 유형을 선택해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('eventTypeError');
+                    }
+                    break;
+                    
+                case 4:
+                    const menu1 = document.getElementById('menu1').value;
+                    const menuConfirm = document.getElementById('menuConfirm').checked;
+                    
+                    if (!menu1) {
+                        showError('menu1Error');
+                        errorMessage = '메뉴 1은 필수 입력 항목입니다';
+                        isValid = false;
+                    } else {
+                        hideError('menu1Error');
+                    }
+                    
+                    if (!menuConfirm) {
+                        showError('menuConfirmError');
+                        if (!errorMessage) errorMessage = '패스오더 등록 메뉴 확인을 체크해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('menuConfirmError');
+                    }
+                    break;
+                    
+                case 5:
+                    const discountType = document.querySelector('input[name="discountType"]:checked');
+                    if (!discountType) {
+                        showError('discountTypeError');
+                        errorMessage = '할인 방식을 선택해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('discountTypeError');
+                    }
+                    break;
+                    
+                case 6:
+                    const discountAmount = document.getElementById('discountAmount').value;
+                    if (!discountAmount || discountAmount < 100 || discountAmount % 10 !== 0) {
+                        showError('discountAmountError');
+                        errorMessage = '할인 금액은 100원 이상, 10원 단위로 입력해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('discountAmountError');
+                    }
+                    break;
+                    
+                case 7:
+                    const discountRate = document.getElementById('discountRate').value;
+                    if (!discountRate) {
+                        showError('discountRateError');
+                        errorMessage = '할인율을 선택해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('discountRateError');
+                    }
+                    break;
+                    
+                case 12:
+                    let couponErrors = [];
+                    let hasValidCoupon = false;
+                    
+                    // 모든 쿠폰 검증 (1부터 couponCount까지)
+                    for (let i = 1; i <= couponCount; i++) {
+                        const couponAmountInput = document.getElementById(`coupon${i}Amount`);
+                        const minOrderInput = document.getElementById(`coupon${i}MinOrder`);
+                        
+                        // 쿠폰이 삭제되었을 수 있으므로 존재 확인
+                        if (!couponAmountInput) continue;
+                        
+                        const couponAmount = couponAmountInput.value;
+                        const minOrder = minOrderInput.value;
+                        
+                        // 쿠폰 금액이 입력된 경우에만 검증
+                        if (couponAmount) {
+                            let hasError = false;
+                            
+                            // 1. 쿠폰 금액 검증 (500원 이상, 10원 단위)
+                            if (couponAmount < 500 || couponAmount % 10 !== 0) {
+                                showError(`coupon${i}AmountError`);
+                                if (i === 1) {
+                                    couponErrors.push(`쿠폰${i}: 금액은 500원 이상, 10원 단위로 입력해주세요`);
+                                }
+                                hasError = true;
+                            } else {
+                                hideError(`coupon${i}AmountError`);
+                            }
+                            
+                            // 2. 최소 주문 금액 검증 (입력된 경우만)
+                            if (minOrder) {
+                                if ((minOrder - couponAmount) < 500) {
+                                    showError(`coupon${i}MinOrderError`);
+                                    if (!hasError) {
+                                        couponErrors.push(`쿠폰${i}: 최소 주문 금액이 쿠폰 금액보다 500원 이상 많아야 합니다`);
+                                    }
+                                    hasError = true;
+                                } else {
+                                    hideError(`coupon${i}MinOrderError`);
+                                }
+                            } else {
+                                hideError(`coupon${i}MinOrderError`);
+                            }
+                            
+                            if (!hasError) {
+                                hasValidCoupon = true;
+                            }
+                        }
+                    }
+                    
+                    // 쿠폰1은 필수
+                    const coupon1Amount = document.getElementById('coupon1Amount').value;
+                    if (!coupon1Amount) {
+                        showError('coupon1AmountError');
+                        errorMessage = '쿠폰 1의 금액은 필수 입력 항목입니다';
+                        isValid = false;
+                    } else if (couponErrors.length > 0) {
+                        errorMessage = couponErrors[0]; // 첫 번째 에러만 토스트로 표시
+                        isValid = false;
+                    }
+                    break;
+                    
+                case '11_confirm':
+                    const agreeTerms = document.getElementById('agreeTerms').checked;
+                    if (!agreeTerms) {
+                        errorMessage = '동의 항목에 체크해주세요';
+                        isValid = false;
+                    }
+                    break;
+                    
+                case '16_confirm':
+                    const agreeCouponTerms = document.getElementById('agreeCouponTerms').checked;
+                    if (!agreeCouponTerms) {
+                        errorMessage = '동의 항목에 체크해주세요';
+                        isValid = false;
+                    }
+                    break;
+            }
+            
+            if (!isValid && errorMessage) {
+                showToast(errorMessage);
+            }
+            
+            return isValid;
+        }
+
+        function showError(errorId) {
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.classList.add('show');
+            }
+        }
+
+        function hideError(errorId) {
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.classList.remove('show');
+            }
+        }
+
+        // Navigation
+        function nextStep(step) {
+            // Step 1은 proceedToStep2()로 별도 처리
+            if (step === 1) {
+                return proceedToStep2();
+            }
+            
+            if (!validateStep(step)) {
+                return;
+            }
+            
+            saveStepData(step);
+            
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            
+            // Handle navigation logic
+            if (step === 3) {
+                if (eventPath === 'menu') {
+                    currentStep = 4;
+                } else if (eventPath === 'coupon') {
+                    currentStep = 12;
+                }
+            } else if (step === 5) {
+                const discountType = document.querySelector('input[name="discountType"]:checked').value;
+                if (discountType === 'amount') {
+                    currentStep = 6;
+                } else {
+                    currentStep = 7;
+                }
+            } else if (step === 6) {
+                currentStep = 8;
+            } else if (step === 7) {
+                currentStep = 8;
+            } else {
+                currentStep++;
+            }
+            
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgressBar();
+            scrollToTop();
+        }
+
+        function prevStep(step) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            
+            // Handle reverse navigation
+            if (step === 2) {
+                currentStep = 1;
+            } else if (step === 4) {
+                currentStep = 3;
+            } else if (step === 12) {
+                currentStep = 3;
+            } else if (step === 6 || step === 7) {
+                currentStep = 5;
+            } else if (step === 8) {
+                const discountType = formData.discountType;
+                if (discountType === 'amount') {
+                    currentStep = 6;
+                } else {
+                    currentStep = 7;
+                }
+            } else {
+                currentStep--;
+            }
+            
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            updateProgressBar();
+            scrollToTop();
+        }
+
+        // Prepare menu event summary
+        function prepareMenuEventSummary() {
+            if (!validateStep(11)) {
+                return;
+            }
+            
+            saveStepData(11);
+            
+            const policyText = {
+                'repeat': '반복 사용',
+                'daily': '하루에 1번 사용',
+                'once': '고객 당 1번 사용'
+            };
+            
+            // 시간 표시 형식 개선
+            let timeDisplay = '영업시간 전체';
+            if (!formData.allDayTime && formData.startTime && formData.endTime) {
+                const formatTime = (time) => {
+                    const [hour, minute] = time.split(':').map(Number);
+                    const period = hour < 12 ? '오전' : '오후';
+                    const displayHour = hour <= 12 ? hour : hour - 12;
+                    return `${period} ${displayHour === 0 ? 12 : displayHour}시${minute === 0 ? '' : ' 30분'}`;
+                };
+                timeDisplay = `${formatTime(formData.startTime)} ~ ${formatTime(formData.endTime)}`;
+            }
+            
+            let summaryHTML = `
+                <div class="confirmation-item">
+                    <div class="confirmation-label">매장 정보</div>
+                    <div class="confirmation-value">${formData.storeName} / ${formData.ownerName} / ${formData.ownerPhone}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">이벤트 메뉴</div>
+                    <div class="confirmation-value">${formData.menus.join(', ')}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">할인 방식</div>
+                    <div class="confirmation-value">${formData.discountType === 'amount' ? `${formData.discountAmount}원 할인` : `${formData.discountRate}% 할인`}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">이벤트 시간</div>
+                    <div class="confirmation-value">${timeDisplay}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">이벤트 기간</div>
+                    <div class="confirmation-value">${formData.alwaysEvent ? '상시 진행' : `${formData.eventStartDate} ~ ${formData.eventEndDate}`}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">구매 정책</div>
+                    <div class="confirmation-value">${policyText[formData.purchasePolicy]}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">적립 여부</div>
+                    <div class="confirmation-value">${formData.hasReward ? (formData.rewardPolicy === 'yes' ? '적립 가능' : '적립 불가') : '해당 없음'}</div>
+                </div>
+            `;
+            
+            document.getElementById('menuEventConfirmation').innerHTML = summaryHTML;
+            
+            document.getElementById('step11').classList.remove('active');
+            document.getElementById('step11_confirm').classList.add('active');
+            
+            // Update currentStep to 11.5 for progress bar
+            currentStep = 11.5;
+            updateProgressBar();
+            scrollToTop();
+        }
+
+        // Prepare coupon event summary
+        function prepareCouponEventSummary() {
+            if (!validateStep(16)) {
+                return;
+            }
+            
+            saveStepData(16);
+            
+            const policyText = {
+                'repeat': '반복 사용',
+                'daily': '하루에 1번 사용',
+                'once': '고객 당 1번 사용'
+            };
+            
+            const validityText = {
+                '1': '당일',
+                '7': '7일',
+                '14': '14일',
+                '30': '30일'
+            };
+            
+            let couponDetails = formData.coupons.map((c, i) => {
+                let detail = `쿠폰${i+1}: ${c.amount}원`;
+                if (c.minOrder) detail += ` (최소주문 ${c.minOrder}원)`;
+                return detail;
+            }).join('<br>');
+            
+            let summaryHTML = `
+                <div class="confirmation-item">
+                    <div class="confirmation-label">매장 정보</div>
+                    <div class="confirmation-value">${formData.storeName} / ${formData.ownerName} / ${formData.ownerPhone}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">쿠폰 상세</div>
+                    <div class="confirmation-value">${couponDetails}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">이벤트 기간</div>
+                    <div class="confirmation-value">${formData.alwaysCouponEvent ? '상시' : `${formData.couponStartDate} ~ ${formData.couponEndDate}`}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">쿠폰 유효기간</div>
+                    <div class="confirmation-value">다운로드 후 ${validityText[formData.couponValidity]}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">사용 정책</div>
+                    <div class="confirmation-value">${policyText[formData.couponPolicy]}</div>
+                </div>
+                <div class="confirmation-item">
+                    <div class="confirmation-label">적립 여부</div>
+                    <div class="confirmation-value">${formData.hasCouponReward ? (formData.couponRewardPolicy === 'yes' ? '적립 가능' : '적립 불가') : '해당 없음'}</div>
+                </div>
+            `;
+            
+            document.getElementById('couponEventConfirmation').innerHTML = summaryHTML;
+            
+            document.getElementById('step16').classList.remove('active');
+            document.getElementById('step16_confirm').classList.add('active');
+            
+            // Update currentStep to 16.5 for progress bar
+            currentStep = 16.5;
+            updateProgressBar();
+            scrollToTop();
+        }
+
+        // Back to step functions
+        function backToStep11() {
+            document.getElementById('step11_confirm').classList.remove('active');
+            document.getElementById('step11').classList.add('active');
+            currentStep = 11;  // Reset to 11
+            updateProgressBar();
+            scrollToTop();
+        }
+
+        function backToStep16() {
+            document.getElementById('step16_confirm').classList.remove('active');
+            document.getElementById('step16').classList.add('active');
+            currentStep = 16;  // Reset to 16
+            updateProgressBar();
+            scrollToTop();
+        }
+
+        // Submit functions
+
+        // Submit functions (replaced)
+        async function submitMenuEvent() {
+            // 약관 동의 최종 확인
+            if (!validateStep('11_confirm')) { return; }
+            // 최신 데이터 저장
+            saveStepData(11);
+            const payload = {
+              confirmReading: document.getElementById('confirmReading')?.checked || false,
+              ...formData
+            };
+            await postToSheet(payload);
+            // 성공 화면 이동
+            document.getElementById('step11_confirm').classList.remove('active');
+            document.getElementById('successStep').classList.add('active');
+            document.getElementById('progressBar').style.width = '100%';
+            scrollToTop();
+        }
+
+        async function submitCouponEvent() {
+            // 약관 동의 최종 확인
+            if (!validateStep('16_confirm')) { return; }
+            // 최신 데이터 저장
+            saveStepData(16);
+            const payload = {
+              confirmReading: document.getElementById('confirmReading')?.checked || false,
+              ...formData
+            };
+            await postToSheet(payload);
+            // 성공 화면 이동
+            document.getElementById('step16_confirm').classList.remove('active');
+            document.getElementById('successStep').classList.add('active');
+            document.getElementById('progressBar').style.width = '100%';
+            scrollToTop();
+        }
+
+        // removed submitMenuEvent
+
+
+        // removed submitCouponEvent
+
+        function saveStepData(step) {
+            switch(step) {
+                case 2:
+                    formData.storeName = document.getElementById('storeName').value;
+                    formData.ownerName = document.getElementById('ownerName').value;
+                    formData.ownerPhone = document.getElementById('ownerPhone').value;
+                    break;
+                case 3:
+                    formData.eventType = document.querySelector('input[name="eventType"]:checked').value;
+                    break;
+                case 4:
+                    formData.menus = [];
+                    for (let i = 1; i <= menuCount; i++) {
+                        const menuValue = document.getElementById(`menu${i}`)?.value;
+                        if (menuValue) {
+                            formData.menus.push(menuValue);
+                        }
+                    }
+                    break;
+                case 5:
+                    formData.discountType = document.querySelector('input[name="discountType"]:checked').value;
+                    break;
+                case 6:
+                    formData.discountAmount = document.getElementById('discountAmount').value;
+                    break;
+                case 7:
+                    formData.discountRate = document.getElementById('discountRate').value;
+                    break;
+                case 8:
+                    formData.allDayTime = document.getElementById('allDayTime').checked;
+                    if (!formData.allDayTime) {
+                        const startTime = document.getElementById('startTime').value;
+                        const endTime = document.getElementById('endTime').value;
+                        if (startTime && endTime) {
+                            formData.startTime = startTime;
+                            formData.endTime = endTime;
+                            
+                            // 오전/오후 정보도 저장 (선택사항)
+                            formData.startPeriod = document.getElementById('startPeriod').value;
+                            formData.endPeriod = document.getElementById('endPeriod').value;
+                        }
+                    }
+                    break;
+                case 9:
+                    formData.alwaysEvent = document.getElementById('alwaysEvent').checked;
+                    if (!formData.alwaysEvent) {
+                        formData.eventStartDate = document.getElementById('eventStartDate').value;
+                        formData.eventEndDate = document.getElementById('eventEndDate').value;
+                    }
+                    break;
+                case 10:
+                    formData.purchasePolicy = document.querySelector('input[name="purchasePolicy"]:checked').value;
+                    break;
+                case 11:
+                    formData.hasReward = document.getElementById('hasReward').checked;
+                    if (formData.hasReward) {
+                        formData.rewardPolicy = document.querySelector('input[name="rewardPolicy"]:checked').value;
+                    }
+                    break;
+                case 12:
+                    formData.coupons = [];
+                    for (let i = 1; i <= couponCount; i++) {
+                        const amountInput = document.getElementById(`coupon${i}Amount`);
+                        const minOrderInput = document.getElementById(`coupon${i}MinOrder`);
+                        
+                        // 삭제된 쿠폰은 건너뛰기
+                        if (!amountInput) continue;
+                        
+                        const amount = amountInput.value;
+                        const minOrder = minOrderInput.value;
+                        
+                        // 금액이 입력된 쿠폰만 저장
+                        if (amount) {
+                            formData.coupons.push({ 
+                                amount: amount, 
+                                minOrder: minOrder || null 
+                            });
+                        }
+                    }
+                    break;
+                case 13:
+                    formData.alwaysCouponEvent = document.getElementById('alwaysCouponEvent').checked;
+                    if (!formData.alwaysCouponEvent) {
+                        formData.couponStartDate = document.getElementById('couponStartDate').value;
+                        formData.couponEndDate = document.getElementById('couponEndDate').value;
+                    }
+                    break;
+                case 14:
+                    formData.couponValidity = document.querySelector('input[name="couponValidity"]:checked').value;
+                    break;
+                case 15:
+                    formData.couponPolicy = document.querySelector('input[name="couponPolicy"]:checked').value;
+                    break;
+                case 16:
+                    formData.hasCouponReward = document.getElementById('hasCouponReward').checked;
+                    if (formData.hasCouponReward) {
+                        formData.couponRewardPolicy = document.querySelector('input[name="couponRewardPolicy"]:checked').value;
+                    }
+                    break;
+            }
+        }
+
+        // Submit functions
+        // removed submitMenuEvent
+
+
+        // removed submitCouponEvent
+
+
+        // Reset form
+        function resetForm() {
+            formData = {};
+            currentStep = 1;
+            eventPath = '';
+            menuCount = 1;
+            couponCount = 1;
+            
+            // Reset all form fields
+            document.querySelectorAll('input, select, textarea').forEach(field => {
+                if (field.type === 'checkbox' || field.type === 'radio') {
+                    field.checked = false;
+                } else {
+                    field.value = '';
+                }
+            });
+            
+            // Reset radio item selections
+            document.querySelectorAll('.radio-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            // Hide all error messages
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.classList.remove('show');
+            });
+            
+            // Reset dynamic menus and coupons (if elements exist)
+            const menuContainer = document.getElementById('menuContainer');
+            if (menuContainer) {
+                menuContainer.innerHTML = `
+                    <div class="menu-item">
+                        <label>메뉴 1 <span class="required">*</span></label>
+                        <input type="text" id="menu1" placeholder="예: 아메리카노">
+                        <span class="error-message" id="menu1Error">메뉴 1은 필수 입력 항목입니다</span>
+                    </div>
+                `;
+            }
+            
+            const couponContainer = document.getElementById('couponContainer');
+            if (couponContainer) {
+                couponContainer.innerHTML = `
+                    <div class="coupon-item">
+                        <h4>쿠폰 1</h4>
+                        <div class="form-group">
+                            <label>쿠폰 금액 <span class="required">*</span></label>
+                            <input type="number" id="coupon1Amount" placeholder="예: 1000" min="500" step="10">
+                            <span class="helper-text">500원 이상, 10원 단위로 입력해주세요</span>
+                            <span class="error-message" id="coupon1AmountError">올바른 쿠폰 금액을 입력해주세요</span>
+                        </div>
+                        <div class="form-group">
+                            <label>최소 주문 금액</label>
+                            <input type="number" id="coupon1MinOrder" placeholder="예: 5000" step="10">
+                            <span class="helper-text">최소 주문 금액 - 쿠폰 금액이 500원 이상이어야 합니다</span>
+                            <span class="error-message" id="coupon1MinOrderError">최소 주문 금액이 쿠폰 금액보다 500원 이상 많아야 합니다</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Reset buttons visibility
+            const addMenuBtn = document.getElementById('addMenuBtn');
+            if (addMenuBtn) addMenuBtn.style.display = 'block';
+            
+            const addCouponBtn = document.getElementById('addCouponBtn');
+            if (addCouponBtn) addCouponBtn.style.display = 'block';
+            
+            // Reset confirmation checkbox
+            const confirmReading = document.getElementById('confirmReading');
+            if (confirmReading) confirmReading.checked = false;
+            
+            // Show first step
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.getElementById('step1').classList.add('active');
+            
+            updateProgressBar();
+            scrollToTop();
+        }
+
+        // Auto-format phone number
+        document.getElementById('ownerPhone')?.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 4 && value.length <= 7) {
+                value = value.slice(0, 3) + '-' + value.slice(3);
+            } else if (value.length >= 8) {
+                value = value.slice(0, 3) + '-' + value.slice(3, 7) + '-' + value.slice(7, 11);
+            }
+            e.target.value = value;
+        });
+
+        // Initialize on load
+        window.onload = function() {
+            initializeTimeOptions();
+            initializeDateInputs();
+            updateProgressBar();
+        };
+    </script>
+</body>
+</html>
