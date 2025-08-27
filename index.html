@@ -441,6 +441,59 @@
             margin-right: 8px;
         }
 
+        /* Loading Overlay Styles */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-content {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #B8935F;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .loading-subtext {
+            font-size: 14px;
+            color: #666;
+        }
+
         /* Custom styles for Step 1 */
         #step1 h3 {
             font-weight: 600;
@@ -460,6 +513,15 @@
 <body>
     <!-- Toast Message Container -->
     <div id="toast" class="toast"></div>
+    
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">신청서 제출 중입니다...</div>
+            <div class="loading-subtext">잠시만 기다려주세요</div>
+        </div>
+    </div>
     
     <div class="container">
         <div class="header">
@@ -1016,13 +1078,13 @@
             <!-- Step 14: [매장 쿠폰] 쿠폰 유효기간 선택 -->
             <div class="step" id="step14">
                 <h2 class="step-title">⏳ [매장 쿠폰 이벤트] 쿠폰 유효기간 선택</h2>
-                <p class="step-description">쿠폰을 다운로드한 시점부터 사용할 수 있는 유효기간입니다. (이벤트 진행 기간과는 별개)</p>
+                <p class="step-description">쿠폰을 다운로드한 시점부터 사용할 수 있는 유효기간입니다. (이벤트 진행 기간과는 별개) <span class="required">*</span></p>
                 
                 <div class="form-group">
                     <div class="radio-group">
                         <label class="radio-item selected" onclick="selectCouponValidity('7')">
                             <input type="radio" name="couponValidity" value="7" checked>
-                            <span>7일</span>
+                            <span>7일 (기본값)</span>
                         </label>
                         
                         <label class="radio-item" onclick="selectCouponValidity('14')">
@@ -1040,6 +1102,7 @@
                             <span>당일</span>
                         </label>
                     </div>
+                    <span class="error-message" id="couponValidityError">쿠폰 유효기간을 선택해주세요</span>
                 </div>
 
                 <div class="button-group">
@@ -1051,14 +1114,14 @@
             <!-- Step 15: [매장 쿠폰] 구매 정책 선택 -->
             <div class="step" id="step15">
                 <h2 class="step-title">🔄 [매장 쿠폰 이벤트] 구매 정책 선택</h2>
-                <p class="step-description">개별 쿠폰 사용에 대한 제한 정책입니다.</p>
+                <p class="step-description">개별 쿠폰 사용에 대한 제한 정책입니다. <span class="required">*</span></p>
                 
                 <div class="form-group">
                     <div class="radio-group">
                         <label class="radio-item selected" onclick="selectCouponPolicy('repeat')">
                             <input type="radio" name="couponPolicy" value="repeat" checked>
                             <div>
-                                <strong>반복 사용</strong>
+                                <strong>반복 사용 (기본값)</strong>
                                 <p style="margin-top: 5px; font-size: 12px; color: #666;">이벤트 마감될 때까지 계속 쿠폰 사용 가능</p>
                             </div>
                         </label>
@@ -1079,6 +1142,7 @@
                             </div>
                         </label>
                     </div>
+                    <span class="error-message" id="couponPolicyError">구매 정책을 선택해주세요</span>
                 </div>
 
                 <div class="button-group">
@@ -1491,7 +1555,29 @@ let currentStep = 1;
         function toggleCouponRewardOptions() {
             const checkbox = document.getElementById('hasCouponReward');
             const options = document.getElementById('couponRewardOptions');
-            options.style.display = checkbox.checked ? 'block' : 'none';
+            
+            if (checkbox.checked) {
+                options.style.display = 'block';
+                // 기본값으로 '적립 불가' 선택
+                const noRewardOption = document.querySelector('input[name="couponRewardPolicy"][value="no"]');
+                if (noRewardOption) {
+                    noRewardOption.checked = true;
+                    // selected 클래스 업데이트
+                    document.querySelectorAll('#couponRewardOptions .radio-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    document.querySelector('#couponRewardOptions .radio-item:first-child').classList.add('selected');
+                }
+            } else {
+                options.style.display = 'none';
+                // 체크 해제 시 선택값 초기화
+                document.querySelectorAll('input[name="couponRewardPolicy"]').forEach(radio => {
+                    radio.checked = false;
+                });
+                document.querySelectorAll('#couponRewardOptions .radio-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+            }
         }
 
         // Add menu item
@@ -1827,6 +1913,28 @@ let currentStep = 1;
                     }
                     break;
                     
+                case 14:
+                    const couponValidity = document.querySelector('input[name="couponValidity"]:checked');
+                    if (!couponValidity) {
+                        showError('couponValidityError');
+                        errorMessage = '쿠폰 유효기간을 선택해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('couponValidityError');
+                    }
+                    break;
+                    
+                case 15:
+                    const couponPolicy = document.querySelector('input[name="couponPolicy"]:checked');
+                    if (!couponPolicy) {
+                        showError('couponPolicyError');
+                        errorMessage = '구매 정책을 선택해주세요';
+                        isValid = false;
+                    } else {
+                        hideError('couponPolicyError');
+                    }
+                    break;
+                    
                 case '11_confirm':
                     const agreeTerms = document.getElementById('agreeTerms').checked;
                     if (!agreeTerms) {
@@ -2087,39 +2195,88 @@ let currentStep = 1;
 
         // Submit functions
 
+        // Loading functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
         // Submit functions (replaced)
         async function submitMenuEvent() {
             // 약관 동의 최종 확인
             if (!validateStep('11_confirm')) { return; }
-            // 최신 데이터 저장
-            saveStepData(11);
-            const payload = {
-              confirmReading: document.getElementById('confirmReading')?.checked || false,
-              ...formData
-            };
-            await postToSheet(payload);
-            // 성공 화면 이동
-            document.getElementById('step11_confirm').classList.remove('active');
-            document.getElementById('successStep').classList.add('active');
-            document.getElementById('progressBar').style.width = '100%';
-            scrollToTop();
+            
+            // 로딩 화면 표시
+            showLoading();
+            
+            try {
+                // 최신 데이터 저장
+                saveStepData(11);
+                const payload = {
+                  confirmReading: document.getElementById('confirmReading')?.checked || false,
+                  ...formData
+                };
+                
+                // 구글 시트로 전송
+                await postToSheet(payload);
+                
+                // 약간의 지연을 추가하여 로딩 화면이 보이도록 함 (UX 개선)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 로딩 화면 숨기기
+                hideLoading();
+                
+                // 성공 화면 이동
+                document.getElementById('step11_confirm').classList.remove('active');
+                document.getElementById('successStep').classList.add('active');
+                document.getElementById('progressBar').style.width = '100%';
+                scrollToTop();
+            } catch (error) {
+                // 오류 발생 시 로딩 화면 숨기고 에러 메시지 표시
+                hideLoading();
+                showToast('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+                console.error('Submit error:', error);
+            }
         }
 
         async function submitCouponEvent() {
             // 약관 동의 최종 확인
             if (!validateStep('16_confirm')) { return; }
-            // 최신 데이터 저장
-            saveStepData(16);
-            const payload = {
-              confirmReading: document.getElementById('confirmReading')?.checked || false,
-              ...formData
-            };
-            await postToSheet(payload);
-            // 성공 화면 이동
-            document.getElementById('step16_confirm').classList.remove('active');
-            document.getElementById('successStep').classList.add('active');
-            document.getElementById('progressBar').style.width = '100%';
-            scrollToTop();
+            
+            // 로딩 화면 표시
+            showLoading();
+            
+            try {
+                // 최신 데이터 저장
+                saveStepData(16);
+                const payload = {
+                  confirmReading: document.getElementById('confirmReading')?.checked || false,
+                  ...formData
+                };
+                
+                // 구글 시트로 전송
+                await postToSheet(payload);
+                
+                // 약간의 지연을 추가하여 로딩 화면이 보이도록 함 (UX 개선)
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // 로딩 화면 숨기기
+                hideLoading();
+                
+                // 성공 화면 이동
+                document.getElementById('step16_confirm').classList.remove('active');
+                document.getElementById('successStep').classList.add('active');
+                document.getElementById('progressBar').style.width = '100%';
+                scrollToTop();
+            } catch (error) {
+                // 오류 발생 시 로딩 화면 숨기고 에러 메시지 표시
+                hideLoading();
+                showToast('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+                console.error('Submit error:', error);
+            }
         }
 
         // removed submitMenuEvent
@@ -2215,10 +2372,14 @@ let currentStep = 1;
                     }
                     break;
                 case 14:
-                    formData.couponValidity = document.querySelector('input[name="couponValidity"]:checked').value;
+                    // 기본값 처리 추가
+                    const selectedValidity = document.querySelector('input[name="couponValidity"]:checked');
+                    formData.couponValidity = selectedValidity ? selectedValidity.value : '7'; // 기본값 7일
                     break;
                 case 15:
-                    formData.couponPolicy = document.querySelector('input[name="couponPolicy"]:checked').value;
+                    // 기본값 처리 추가
+                    const selectedPolicy = document.querySelector('input[name="couponPolicy"]:checked');
+                    formData.couponPolicy = selectedPolicy ? selectedPolicy.value : 'repeat'; // 기본값 반복 사용
                     break;
                 case 16:
                     formData.hasCouponReward = document.getElementById('hasCouponReward').checked;
