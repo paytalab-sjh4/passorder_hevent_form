@@ -762,7 +762,7 @@
                         
                         <label class="radio-item" onclick="selectDiscountType('percent')">
                             <input type="radio" name="discountType" value="percent">
-                            <span>정률 할인 (%)</span>
+                            <span>정율 할인 (%)</span>
                         </label>
                     </div>
                     <span class="error-message" id="discountTypeError">할인 방식을 선택해주세요</span>
@@ -1549,7 +1549,29 @@ let currentStep = 1;
         function toggleRewardOptions() {
             const checkbox = document.getElementById('hasReward');
             const options = document.getElementById('rewardOptions');
-            options.style.display = checkbox.checked ? 'block' : 'none';
+            
+            if (checkbox.checked) {
+                options.style.display = 'block';
+                // 기본값으로 '적립 불가' 선택
+                const noRewardOption = document.querySelector('input[name="rewardPolicy"][value="no"]');
+                if (noRewardOption) {
+                    noRewardOption.checked = true;
+                    // selected 클래스 업데이트
+                    document.querySelectorAll('#rewardOptions .radio-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+                    document.querySelector('#rewardOptions .radio-item:first-child').classList.add('selected');
+                }
+            } else {
+                options.style.display = 'none';
+                // 체크 해제 시 선택값 초기화
+                document.querySelectorAll('input[name="rewardPolicy"]').forEach(radio => {
+                    radio.checked = false;
+                });
+                document.querySelectorAll('#rewardOptions .radio-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+            }
         }
 
         function toggleCouponRewardOptions() {
@@ -1847,6 +1869,15 @@ let currentStep = 1;
                         isValid = false;
                     } else {
                         hideError('discountRateError');
+                    }
+                    break;
+                    
+                case 10:
+                    // 구매 정책은 기본값이 있으므로 특별한 검증 불필요
+                    const purchasePolicy = document.querySelector('input[name="purchasePolicy"]:checked');
+                    if (!purchasePolicy) {
+                        // 만약 아무것도 선택되지 않았다면 기본값 설정
+                        document.querySelector('input[name="purchasePolicy"][value="repeat"]').checked = true;
                     }
                     break;
                     
@@ -2335,12 +2366,15 @@ let currentStep = 1;
                     }
                     break;
                 case 10:
-                    formData.purchasePolicy = document.querySelector('input[name="purchasePolicy"]:checked').value;
+                    // 기본값 처리 추가
+                    const selectedPurchasePolicy = document.querySelector('input[name="purchasePolicy"]:checked');
+                    formData.purchasePolicy = selectedPurchasePolicy ? selectedPurchasePolicy.value : 'repeat'; // 기본값 반복 사용
                     break;
                 case 11:
                     formData.hasReward = document.getElementById('hasReward').checked;
                     if (formData.hasReward) {
-                        formData.rewardPolicy = document.querySelector('input[name="rewardPolicy"]:checked').value;
+                        const selectedRewardPolicy = document.querySelector('input[name="rewardPolicy"]:checked');
+                        formData.rewardPolicy = selectedRewardPolicy ? selectedRewardPolicy.value : 'no'; // 기본값 적립 불가
                     }
                     break;
                 case 12:
