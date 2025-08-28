@@ -889,11 +889,13 @@
                     <div class="form-group">
                         <label>이벤트 시작 날짜</label>
                         <input type="date" id="eventStartDate">
+                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 5일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
                     </div>
 
                     <div class="form-group">
                         <label>이벤트 종료 날짜</label>
                         <input type="date" id="eventEndDate">
+                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 5일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
                     </div>
 
                     <div class="date-result" id="dateResult"></div>
@@ -1059,11 +1061,13 @@
                     <div class="form-group">
                         <label>이벤트 시작 날짜</label>
                         <input type="date" id="couponStartDate">
+                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 5일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
                     </div>
 
                     <div class="form-group">
                         <label>이벤트 종료 날짜</label>
                         <input type="date" id="couponEndDate">
+                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 5일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
                     </div>
 
                     <div class="date-result" id="couponDateResult"></div>
@@ -1461,9 +1465,10 @@ let currentStep = 1;
             }
         }
 
-        // Initialize date inputs
+        // Initialize date inputs with cross-browser compatibility
         function initializeDateInputs() {
             const today = new Date();
+            today.setHours(0, 0, 0, 0);
             const minDate = new Date(today);
             minDate.setDate(minDate.getDate() + 5);
             
@@ -1477,15 +1482,110 @@ let currentStep = 1;
                 return `${year}-${month}-${day}`;
             };
             
+            // 날짜 포맷 표시용
+            const formatDateKorean = (date) => {
+                return date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            };
+            
             const dateInputs = ['eventStartDate', 'eventEndDate', 'couponStartDate', 'couponEndDate'];
+            
             dateInputs.forEach(id => {
                 const input = document.getElementById(id);
                 if (input) {
+                    // HTML5 속성 설정 (지원하는 브라우저용)
                     input.min = formatDate(minDate);
                     input.max = formatDate(maxDate);
-                    input.addEventListener('change', () => calculateDateRange(id.includes('coupon') ? 'coupon' : 'event'));
+                    
+                    // placeholder로 범위 안내
+                    input.placeholder = `${formatDateKorean(minDate)} 이후`;
+                    
+                    // 모든 브라우저에서 작동하는 JavaScript 검증
+                    input.addEventListener('blur', function() {
+                        validateDateInput(this, minDate, maxDate);
+                    });
+                    
+                    input.addEventListener('change', function() {
+                        validateDateInput(this, minDate, maxDate);
+                    });
+                    
+                    // iOS Safari 대응
+                    input.addEventListener('input', function() {
+                        if (this.value && this.value.length === 10) {
+                            validateDateInput(this, minDate, maxDate);
+                        }
+                    });
                 }
             });
+        }
+        
+        // 날짜 검증 함수 (크로스브라우저)
+        function validateDateInput(input, minDate, maxDate) {
+            if (!input.value) return; // 빈 값은 검증하지 않음
+            
+            const selectedDate = new Date(input.value + 'T00:00:00'); // 시간대 문제 방지
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // 날짜 유효성 검사
+            if (isNaN(selectedDate.getTime())) {
+                input.value = '';
+                showToast('올바른 날짜를 선택해주세요');
+                highlightError(input);
+                return;
+            }
+            
+            if (selectedDate < minDate) {
+                input.value = '';
+                const days = Math.ceil((minDate - today) / (1000 * 60 * 60 * 24));
+                showToast(`오늘로부터 ${days}일 후부터 선택 가능합니다`);
+                highlightError(input);
+            } else if (selectedDate > maxDate) {
+                input.value = '';
+                showToast('1년 이내의 날짜만 선택 가능합니다');
+                highlightError(input);
+            } else {
+                // 유효한 날짜
+                input.style.borderColor = '#0AC4B1'; // 성공 색상
+                setTimeout(() => {
+                    input.style.borderColor = '';
+                }, 1500);
+                
+                // 시작/종료 날짜 비교 검증
+                if (input.id === 'eventEndDate') {
+                    const startDate = document.getElementById('eventStartDate').value;
+                    if (startDate && new Date(startDate + 'T00:00:00') > selectedDate) {
+                        input.value = '';
+                        showToast('종료 날짜는 시작 날짜 이후여야 합니다');
+                        highlightError(input);
+                        return;
+                    }
+                } else if (input.id === 'couponEndDate') {
+                    const startDate = document.getElementById('couponStartDate').value;
+                    if (startDate && new Date(startDate + 'T00:00:00') > selectedDate) {
+                        input.value = '';
+                        showToast('종료 날짜는 시작 날짜 이후여야 합니다');
+                        highlightError(input);
+                        return;
+                    }
+                }
+                
+                // 기존 date range 계산
+                calculateDateRange(input.id.includes('coupon') ? 'coupon' : 'event');
+            }
+        }
+        
+        // 에러 하이라이트 함수
+        function highlightError(input) {
+            input.style.borderColor = '#e74c3c';
+            input.style.animation = 'shake 0.3s ease';
+            setTimeout(() => {
+                input.style.borderColor = '';
+                input.style.animation = '';
+            }, 3000);
         }
 
         // Calculate and display date range
