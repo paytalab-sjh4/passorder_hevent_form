@@ -271,6 +271,25 @@
             display: block;
         }
 
+        /* 공휴일 안내 박스 스타일 추가 */
+        .holiday-notice {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .holiday-notice::before {
+            content: "⚠️";
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
         .summary {
             background: #f8f9ff;
             padding: 20px;
@@ -638,7 +657,7 @@
                     <div style="background: #fff8e1; border: 1px solid #ffe082; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
                         <h3 style="color: #f57c00; font-size: 16px; margin-bottom: 15px;">⚠️ 꼭 확인해주세요!</h3>
                         <ul style="margin: 0; padding-left: 20px; color: #666;">
-                            <li style="margin-bottom: 10px; line-height: 1.5;">신청서 제출 후 특별한 사유 없이 이벤트 취소가 어렵습니다 <span style="color: #888;">(내용 수정은 가능)</span></li>
+                            <li style="margin-bottom: 10px; line-height: 1.5;">이벤트에 관한 모든 내용을 꼼꼼하게 확인 후 신중하게 신청해주세요. 수정을 원할 시 채널톡으로 문의 바랍니다.</li>
                             <li style="margin-bottom: 10px; line-height: 1.5;">메뉴 할인, 매장 쿠폰 중 한 가지만 선택하셔도 되고, 두 가지 모두 진행하셔도 좋습니다</li>
                             <li style="margin-bottom: 10px; line-height: 1.5;">추후 사장님 웹페이지에서 직접 이벤트를 설정하실 수 있도록 개선 예정입니다</li>
                         </ul>
@@ -887,18 +906,24 @@
 
                 <div id="dateSelectionArea">
                     <div class="form-group">
-                        <label>이벤트 시작 날짜</label>
-                        <input type="date" id="eventStartDate">
-                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 5일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
+                        <label>이벤트 시작 날짜 <span class="required">*</span></label>
+                        <input type="date" id="eventStartDate" onchange="updateEndDateMin('event')">
+                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 1일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
+                        <span class="error-message" id="eventStartDateError">시작 날짜를 선택해주세요</span>
                     </div>
 
                     <div class="form-group">
-                        <label>이벤트 종료 날짜</label>
+                        <label>이벤트 종료 날짜 <span class="required">*</span></label>
                         <input type="date" id="eventEndDate">
-                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 5일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
+                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 시작일 이후 ~ 1년 이내 날짜만 선택 가능합니다</span>
+                        <span class="error-message" id="eventEndDateError">종료 날짜를 선택해주세요</span>
                     </div>
 
                     <div class="date-result" id="dateResult"></div>
+
+                    <div class="holiday-notice">
+                        주말 및 공휴일에 시작을 원하실 경우, 다음 영업일로 조정될 수 있습니다.
+                    </div>
                 </div>
 
                 <div class="button-group">
@@ -1059,18 +1084,24 @@
 
                 <div id="couponDateSelectionArea">
                     <div class="form-group">
-                        <label>이벤트 시작 날짜</label>
-                        <input type="date" id="couponStartDate">
-                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 5일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
+                        <label>이벤트 시작 날짜 <span class="required">*</span></label>
+                        <input type="date" id="couponStartDate" onchange="updateEndDateMin('coupon')">
+                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 1일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
+                        <span class="error-message" id="couponStartDateError">시작 날짜를 선택해주세요</span>
                     </div>
 
                     <div class="form-group">
-                        <label>이벤트 종료 날짜</label>
+                        <label>이벤트 종료 날짜 <span class="required">*</span></label>
                         <input type="date" id="couponEndDate">
-                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 오늘로부터 5일 후 ~ 1년 이내 날짜만 선택 가능합니다</span>
+                        <span class="helper-text" style="color: #B8935F; font-weight: 500;">※ 시작일 이후 ~ 1년 이내 날짜만 선택 가능합니다</span>
+                        <span class="error-message" id="couponEndDateError">종료 날짜를 선택해주세요</span>
                     </div>
 
                     <div class="date-result" id="couponDateResult"></div>
+
+                    <div class="holiday-notice">
+                        주말 및 공휴일에 시작을 원하실 경우, 다음 영업일로 조정될 수 있습니다.
+                    </div>
                 </div>
 
                 <div class="button-group">
@@ -1243,26 +1274,25 @@
     </div>
 
     <script>
-        
-  // ===== PassOrder → Google Apps Script Web App =====
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyf576nDzBRHXgQJXdsdW3tZaqe7uoC2MrTKcaHEnVWBR_0e0S0RM8rxyhit7_7RsQ7/exec";
+        // ===== PassOrder → Google Apps Script Web App =====
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyf576nDzBRHXgQJXdsdW3tZaqe7uoC2MrTKcaHEnVWBR_0e0S0RM8rxyhit7_7RsQ7/exec";
 
-  async function postToSheet(payload) {
-    try {
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-      });
-      return true;
-    } catch (e) {
-      console.error("postToSheet failed", e);
-      return false;
-    }
-  }
+        async function postToSheet(payload) {
+            try {
+                await fetch(GOOGLE_SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    body: JSON.stringify(payload)
+                });
+                return true;
+            } catch (e) {
+                console.error("postToSheet failed", e);
+                return false;
+            }
+        }
 
-let currentStep = 1;
+        let currentStep = 1;
         let formData = {};
         let eventPath = '';
         let menuCount = 1;
@@ -1465,12 +1495,12 @@ let currentStep = 1;
             }
         }
 
-        // Initialize date inputs with cross-browser compatibility
+        // 날짜 입력 초기화 (개선된 버전)
         function initializeDateInputs() {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             const minDate = new Date(today);
-            minDate.setDate(minDate.getDate() + 5);
+            minDate.setDate(minDate.getDate() + 1); // 1일 후로 변경
             
             const maxDate = new Date(today);
             maxDate.setFullYear(maxDate.getFullYear() + 1);
@@ -1482,7 +1512,6 @@ let currentStep = 1;
                 return `${year}-${month}-${day}`;
             };
             
-            // 날짜 포맷 표시용
             const formatDateKorean = (date) => {
                 return date.toLocaleDateString('ko-KR', {
                     year: 'numeric',
@@ -1521,7 +1550,7 @@ let currentStep = 1;
                 }
             });
         }
-        
+
         // 날짜 검증 함수 (크로스브라우저)
         function validateDateInput(input, minDate, maxDate) {
             if (!input.value) return; // 빈 값은 검증하지 않음
@@ -1577,15 +1606,27 @@ let currentStep = 1;
                 calculateDateRange(input.id.includes('coupon') ? 'coupon' : 'event');
             }
         }
-        
-        // 에러 하이라이트 함수
-        function highlightError(input) {
-            input.style.borderColor = '#e74c3c';
-            input.style.animation = 'shake 0.3s ease';
-            setTimeout(() => {
-                input.style.borderColor = '';
-                input.style.animation = '';
-            }, 3000);
+
+        // 시작일 선택 시 종료일 최소값 자동 설정
+        function updateEndDateMin(type) {
+            const startDateId = type === 'coupon' ? 'couponStartDate' : 'eventStartDate';
+            const endDateId = type === 'coupon' ? 'couponEndDate' : 'eventEndDate';
+            
+            const startDate = document.getElementById(startDateId).value;
+            const endDateInput = document.getElementById(endDateId);
+            
+            if (startDate) {
+                // 종료일의 최소값을 시작일로 설정
+                endDateInput.min = startDate;
+                
+                // 만약 현재 선택된 종료일이 시작일보다 이전이면 초기화
+                if (endDateInput.value && endDateInput.value < startDate) {
+                    endDateInput.value = '';
+                }
+                
+                // 기간 계산
+                calculateDateRange(type);
+            }
         }
 
         // Calculate and display date range
@@ -1604,14 +1645,14 @@ let currentStep = 1;
                 const diffTime = Math.abs(end - start);
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
                 
-                resultDiv.textContent = `총 ${diffDays}일`;
+                resultDiv.textContent = `총 ${diffDays}일간 진행`;
                 resultDiv.classList.add('show');
             } else {
                 resultDiv.classList.remove('show');
             }
         }
 
-        // Toggle functions
+        // Toggle functions - 개선된 버전
         function toggleTimeSelection() {
             const checkbox = document.getElementById('allDayTime');
             const timeArea = document.getElementById('timeSelectionArea');
@@ -1638,12 +1679,34 @@ let currentStep = 1;
             const checkbox = document.getElementById('alwaysEvent');
             const dateArea = document.getElementById('dateSelectionArea');
             dateArea.style.display = checkbox.checked ? 'none' : 'block';
+            
+            // 상시진행 체크 시 날짜 초기화
+            if (checkbox.checked) {
+                document.getElementById('eventStartDate').value = '';
+                document.getElementById('eventEndDate').value = '';
+                document.getElementById('dateResult').classList.remove('show');
+                
+                // 에러 메시지 숨기기
+                hideError('eventStartDateError');
+                hideError('eventEndDateError');
+            }
         }
 
         function toggleCouponDateSelection() {
             const checkbox = document.getElementById('alwaysCouponEvent');
             const dateArea = document.getElementById('couponDateSelectionArea');
             dateArea.style.display = checkbox.checked ? 'none' : 'block';
+            
+            // 상시진행 체크 시 날짜 초기화
+            if (checkbox.checked) {
+                document.getElementById('couponStartDate').value = '';
+                document.getElementById('couponEndDate').value = '';
+                document.getElementById('couponDateResult').classList.remove('show');
+                
+                // 에러 메시지 숨기기
+                hideError('couponStartDateError');
+                hideError('couponEndDateError');
+            }
         }
 
         function toggleRewardOptions() {
@@ -1700,6 +1763,16 @@ let currentStep = 1;
                     item.classList.remove('selected');
                 });
             }
+        }
+
+        // 에러 하이라이트 함수
+        function highlightError(input) {
+            input.style.borderColor = '#e74c3c';
+            input.style.animation = 'shake 0.3s ease';
+            setTimeout(() => {
+                input.style.borderColor = '';
+                input.style.animation = '';
+            }, 3000);
         }
 
         // Add menu item
@@ -1871,7 +1944,7 @@ let currentStep = 1;
             document.getElementById('progressBar').style.width = Math.min(progress, 98) + '%';  // 최대 98%까지
         }
 
-        // Validation functions
+        // Validation functions - 개선된 버전
         function validateStep(step) {
             let isValid = true;
             let errorMessage = '';
@@ -1972,6 +2045,37 @@ let currentStep = 1;
                     }
                     break;
                     
+                case 9: // 메뉴 할인 날짜 검증 추가
+                    const alwaysEvent = document.getElementById('alwaysEvent').checked;
+                    if (!alwaysEvent) {
+                        const eventStartDate = document.getElementById('eventStartDate').value;
+                        const eventEndDate = document.getElementById('eventEndDate').value;
+                        
+                        if (!eventStartDate) {
+                            showError('eventStartDateError');
+                            errorMessage = '이벤트 시작 날짜를 선택해주세요';
+                            isValid = false;
+                        } else {
+                            hideError('eventStartDateError');
+                        }
+                        
+                        if (!eventEndDate) {
+                            showError('eventEndDateError');
+                            if (!errorMessage) errorMessage = '이벤트 종료 날짜를 선택해주세요';
+                            isValid = false;
+                        } else {
+                            hideError('eventEndDateError');
+                        }
+                        
+                        // 날짜 순서 검증
+                        if (eventStartDate && eventEndDate && eventStartDate > eventEndDate) {
+                            showError('eventEndDateError');
+                            if (!errorMessage) errorMessage = '종료 날짜는 시작 날짜 이후여야 합니다';
+                            isValid = false;
+                        }
+                    }
+                    break;
+                    
                 case 10:
                     // 구매 정책은 기본값이 있으므로 특별한 검증 불필요
                     const purchasePolicy = document.querySelector('input[name="purchasePolicy"]:checked');
@@ -2041,6 +2145,37 @@ let currentStep = 1;
                     } else if (couponErrors.length > 0) {
                         errorMessage = couponErrors[0]; // 첫 번째 에러만 토스트로 표시
                         isValid = false;
+                    }
+                    break;
+                    
+                case 13: // 쿠폰 날짜 검증 추가
+                    const alwaysCouponEvent = document.getElementById('alwaysCouponEvent').checked;
+                    if (!alwaysCouponEvent) {
+                        const couponStartDate = document.getElementById('couponStartDate').value;
+                        const couponEndDate = document.getElementById('couponEndDate').value;
+                        
+                        if (!couponStartDate) {
+                            showError('couponStartDateError');
+                            errorMessage = '이벤트 시작 날짜를 선택해주세요';
+                            isValid = false;
+                        } else {
+                            hideError('couponStartDateError');
+                        }
+                        
+                        if (!couponEndDate) {
+                            showError('couponEndDateError');
+                            if (!errorMessage) errorMessage = '이벤트 종료 날짜를 선택해주세요';
+                            isValid = false;
+                        } else {
+                            hideError('couponEndDateError');
+                        }
+                        
+                        // 날짜 순서 검증
+                        if (couponStartDate && couponEndDate && couponStartDate > couponEndDate) {
+                            showError('couponEndDateError');
+                            if (!errorMessage) errorMessage = '종료 날짜는 시작 날짜 이후여야 합니다';
+                            isValid = false;
+                        }
                     }
                     break;
                     
@@ -2324,8 +2459,6 @@ let currentStep = 1;
             scrollToTop();
         }
 
-        // Submit functions
-
         // Loading functions
         function showLoading() {
             document.getElementById('loadingOverlay').classList.add('show');
@@ -2335,7 +2468,7 @@ let currentStep = 1;
             document.getElementById('loadingOverlay').classList.remove('show');
         }
 
-        // Submit functions (replaced)
+        // Submit functions
         async function submitMenuEvent() {
             // 약관 동의 최종 확인
             if (!validateStep('11_confirm')) { return; }
@@ -2409,11 +2542,6 @@ let currentStep = 1;
                 console.error('Submit error:', error);
             }
         }
-
-        // removed submitMenuEvent
-
-
-        // removed submitCouponEvent
 
         function saveStepData(step) {
             switch(step) {
@@ -2523,13 +2651,6 @@ let currentStep = 1;
                     break;
             }
         }
-
-        // Submit functions
-        // removed submitMenuEvent
-
-
-        // removed submitCouponEvent
-
 
         // Reset form
         function resetForm() {
